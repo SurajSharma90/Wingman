@@ -1,0 +1,13 @@
+﻿  Bullet.cpp
+  Game.cpp
+Game.cpp(38): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+Game.cpp(46): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+  main.cpp
+  Player.cpp
+  Generating code
+  All 362 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Wingman.vcxproj -> H:\Wingman\Release\Wingman.exe
+  Wingman.vcxproj -> H:\Wingman\Release\Wingman.pdb (Full PDB)

@@ -15,8 +15,8 @@ Game::Game(RenderWindow *window)
 	//Init players
 	this->players.push_back(Player(&playerTexture, &bulletTexture));
 	
-	/*this->players.push_back(Player(&playerTexture, &bulletTexture, 
-		Keyboard::I, Keyboard::K, Keyboard::J, Keyboard::L, Keyboard::RShift));*/
+	this->players.push_back(Player(&playerTexture, &bulletTexture, 
+		Keyboard::I, Keyboard::K, Keyboard::J, Keyboard::L, Keyboard::RShift));
 
 	this->InitUI();
 }

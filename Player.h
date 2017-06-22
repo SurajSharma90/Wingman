@@ -7,6 +7,8 @@ class Player
 private:
 	unsigned playerNr;
 
+	Vector2f playerCenter;
+
 	int shootTimer;
 	int shootTimerMax;
 	int damageTimer;
