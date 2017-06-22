@@ -1,7 +1,11 @@
-﻿  Game.cpp
+﻿  Player.cpp
+  main.cpp
+  Game.cpp
 h:\wingman\wingman\game.cpp(38): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
 h:\wingman\wingman\game.cpp(46): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+  Bullet.cpp
+  Generating Code...
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.pdb (Full PDB)
