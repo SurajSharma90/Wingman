@@ -1,0 +1,11 @@
+Accessories/aura01.png
+Accessories/aura02.png
+Accessories/aura03.png
+Accessories/aura04.png
+Accessories/aura05.png
+Accessories/aura06.png
+Accessories/aura07.png
+Accessories/aura08.png
+Accessories/aura09.png
+Accessories/aura10.png
+Accessories/aura11.png

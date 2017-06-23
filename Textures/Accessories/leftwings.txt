@@ -1,0 +1,12 @@
+Accessories/wingLeft01.png
+Accessories/wingLeft02.png
+Accessories/wingLeft03.png
+Accessories/wingLeft04.png
+Accessories/wingLeft05.png
+Accessories/wingLeft06.png
+Accessories/wingLeft07.png
+Accessories/wingLeft08.png
+Accessories/wingLeft09.png
+Accessories/wingLeft10.png
+Accessories/wingLeft11.png
+Accessories/wingLeft12.png
