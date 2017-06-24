@@ -61,6 +61,13 @@ public:
 	inline std::vector<Bullet>& getBullets() { return this->bullets; }
 	inline const Vector2f& getPosition()const { return this->sprite.getPosition(); }
 	inline const String getHpAsString()const { return std::to_string(this->hp) + "/" + std::to_string(this->hpMax); }
+	inline const int getDamage()const { return rand() % this->damageMax + this->damage; }
+	inline FloatRect getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
+	inline const int& getHp()const { return this->hp; }
+	inline const int& getHpMax()const { return this->hpMax; }
+	inline void takeDamage(int damage) { this->hp -= damage; }
+	inline bool isAlive()const { return this->hp > 0; }
+	inline const int& getPlayerNr()const { return this->playerNr; }
 
 	//Functions
 	void UpdateAccessories();
