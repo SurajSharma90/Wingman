@@ -33,6 +33,7 @@ Player::Player(
 		this->mainGunSprite.getGlobalBounds().width / 2,
 		this->mainGunSprite.getGlobalBounds().height / 2
 	);
+
 	this->mainGunSprite.rotate(90);
 
 	this->mainGunSprite.setPosition(

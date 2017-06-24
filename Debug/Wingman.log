@@ -1,9 +1,10 @@
-﻿  Player.cpp
-  Game.cpp
-h:\wingman\wingman\game.cpp(46): warning C4996: 'sf::Text::setColor': was declared deprecated
+﻿  Game.cpp
+h:\wingman\wingman\game.cpp(62): warning C4996: 'sf::Text::setColor': was declared deprecated
   h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(54): warning C4996: 'sf::Text::setColor': was declared deprecated
+h:\wingman\wingman\game.cpp(70): warning C4996: 'sf::Text::setColor': was declared deprecated
   h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+  Enemy.cpp
+h:\wingman\wingman\enemy.cpp(15): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
   Generating Code...
   Skipping... (no relevant changes detected)
   main.cpp

@@ -5,6 +5,7 @@
 #include"SFML\Audio.hpp"
 #include<iostream>
 #include<vector>
+#include<cstdlib>
 
 using namespace sf;
 
@@ -27,7 +28,7 @@ public:
 	virtual ~Bullet();
 
 	//Accessors
-	inline const FloatRect& getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
+	inline FloatRect getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
 	inline const Vector2f& getPosition()const { return this->sprite.getPosition(); }
 
 	//Functions

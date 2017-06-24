@@ -1,6 +1,6 @@
 #include "Game.h"
 
-enum texture { player = 0, laser01, missile01, mainGun01 };
+enum texture { player = 0, laser01, missile01, mainGun01, enemy01 };
 
 Game::Game(RenderWindow *window)
 {
@@ -19,12 +19,28 @@ Game::Game(RenderWindow *window)
 	this->textures[missile01].loadFromFile("Textures/Guns/missileTex01.png");
 	this->textures.push_back(Texture());
 	this->textures[mainGun01].loadFromFile("Textures/Guns/gun01.png");
+	this->textures.push_back(Texture());
+	this->textures[enemy01].loadFromFile("Textures/enemy.png");
 
 	//Init players
 	this->players.push_back(Player(this->textures));
 	
-	//this->players.push_back(Player(this->textures, 
-		//Keyboard::I, Keyboard::K, Keyboard::J, Keyboard::L, Keyboard::RShift));
+	//Init enemies
+	Enemy e1(
+		&this->textures[enemy01], this->window->getSize(),
+		Vector2f(0.f, 0.f),
+		Vector2f(-1.f, 0.f), Vector2f(0.1f, 0.1f),
+		0, rand() % 3 + 1, 3, 1);
+
+	this->enemiesSaved.push_back(Enemy(e1));
+
+	this->enemySpawnTimerMax = 10;
+	this->enemySpawnTimer = this->enemySpawnTimerMax;
+
+	this->players.push_back(Player(this->textures, 
+		Keyboard::Numpad8, Keyboard::Numpad5, 
+		Keyboard::Numpad4, Keyboard::Numpad6, 
+		Keyboard::Numpad0));
 
 	this->InitUI();
 }
@@ -74,6 +90,22 @@ void Game::UpdateUI()
 
 void Game::Update()
 {	
+	//Update timers
+	if(this->enemySpawnTimer < this->enemySpawnTimerMax)
+		this->enemySpawnTimer++;
+
+	//Spawn enemies
+	if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
+	{
+		this->enemies.push_back(Enemy(
+			&this->textures[enemy01], this->window->getSize(),
+			Vector2f(0.f, 0.f),
+			Vector2f(-1.f, 0.f), Vector2f(0.1f, 0.1f),
+			0, rand() % 3 + 1, 3, 1));
+
+		this->enemySpawnTimer = 0; //Reset timer
+	}
+
 	for (size_t i = 0; i < this->players.size(); i++)
 	{
 		//UPDATE PLAYERS
@@ -84,15 +116,34 @@ void Game::Update()
 		{
 			this->players[i].getBullets()[k].Update();
 
+			//Enemy collision check
+			for (size_t j = 0; j < this->enemies.size(); j++)
+			{
+				if (this->players[i].getBullets()[k].getGlobalBounds().intersects(this->enemies[j].getGlobalBounds()))
+				{
+					this->players[i].getBullets().erase(this->players[i].getBullets().begin() + k);
+					this->enemies.erase(this->enemies.begin() + j);
+					return;	//RETURN!!!
+				}
+			}
+			
 			//Window bounds check
 			if (this->players[i].getBullets()[k].getPosition().x > this->window->getSize().x)
 			{
 				this->players[i].getBullets().erase(this->players[i].getBullets().begin() + k);
-				
-				break; //BREAK!!!!!!!!!!!!!!!!!!!!!!!!!!
+				return;	//RETURN!!!
 			}
+		}
+	}
 
-			//Enemy collision check
+	for (size_t i = 0; i < this->enemies.size(); i++)
+	{
+		this->enemies[i].Update();
+
+		if (this->enemies[i].getPosition().x < 0 - this->enemies[i].getGlobalBounds().width)
+		{
+			this->enemies.erase(this->enemies.begin() + i);
+			break;	//RETURN!!!
 		}
 	}
 
@@ -120,6 +171,11 @@ void Game::Draw()
 	for (size_t i = 0; i < this->players.size(); i++)
 	{
 		this->players[i].Draw(*this->window);
+	}
+
+	for (size_t i = 0; i < this->enemies.size(); i++)
+	{
+		this->enemies[i].Draw(*this->window);
 	}
 
 	this->DrawUI();

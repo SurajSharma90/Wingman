@@ -2,6 +2,8 @@
 
 int main()
 {
+	srand(time(NULL));
+
 	RenderWindow window(VideoMode(1920, 1080), "Wingman Game", Style::Default);
 
 	Game game(&window);
