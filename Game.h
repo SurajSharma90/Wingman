@@ -9,12 +9,15 @@ private:
 	RenderWindow *window;
 	float dtMultiplier;
 
+	//UI
 	//Text
 	Font font;
-	std::vector<Text> followPlayerTexts;
-	std::vector<Text> staticPlayerTexts;
+	Text followPlayerText;
+	Text staticPlayerText;
 	Text enemyText;
 	Text gameOverText;
+
+	RectangleShape playerExpBar;
 
 	//Players
 	std::vector<Player> players;
@@ -40,7 +43,8 @@ public:
 
 	//Functions
 	void InitUI();
-	void UpdateUI();
+	void UpdateUIPlayer(int index);
+	void UpdateUIEnemy(int index);
 	void Update(const float &dt);
 	void DrawUI();
 	void Draw();

@@ -6,6 +6,7 @@
 #include<iostream>
 #include<vector>
 #include<cstdlib>
+#include<math.h>
 
 using namespace sf;
 

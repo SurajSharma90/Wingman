@@ -1,14 +1,17 @@
 ﻿  Player.cpp
-  Game.cpp
-h:\wingman\wingman\game.cpp(87): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(65): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(73): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-  Enemy.cpp
-h:\wingman\wingman\enemy.cpp(18): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-  Bullet.cpp
   Generating Code...
-h:\wingman\wingman\player.h(72): warning C4172: returning address of local variable or temporary
+  Compiling...
+  main.cpp
+h:\wingman\wingman\main.cpp(5): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Game.cpp
+h:\wingman\wingman\game.cpp(71): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+h:\wingman\wingman\game.cpp(81): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+h:\wingman\wingman\game.cpp(63): warning C4996: 'sf::Text::setColor': was declared deprecated
+  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+h:\wingman\wingman\game.cpp(68): warning C4996: 'sf::Text::setColor': was declared deprecated
+  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
+h:\wingman\wingman\game.cpp(86): warning C4018: '>=': signed/unsigned mismatch
+  Generating Code...
+h:\wingman\wingman\player.h(78): warning C4172: returning address of local variable or temporary
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.pdb (Full PDB)
