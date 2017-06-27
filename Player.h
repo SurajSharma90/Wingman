@@ -5,14 +5,16 @@
 class Player
 {
 private:
+	float dtMultiplier;
+
 	unsigned playerNr;
 
 	Vector2f playerCenter;
 
-	int shootTimer;
-	int shootTimerMax;
-	int damageTimer;
-	int damageTimerMax;
+	float shootTimer;
+	float shootTimerMax;
+	float damageTimer;
+	float damageTimerMax;
 
 	Sprite sprite;
 	RectangleShape hitBox;
@@ -70,10 +72,10 @@ public:
 	inline const int& getPlayerNr()const { return this->playerNr; }
 
 	//Functions
-	void UpdateAccessories();
-	void Combat();
-	void Movement();
-	void Update(Vector2u windowBounds);
+	void UpdateAccessories(const float &dt);
+	void Combat(const float &dt);
+	void Movement(const float &dt);
+	void Update(Vector2u windowBounds, const float &dt);
 	void Draw(RenderTarget &target);
 
 	//Statics

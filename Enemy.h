@@ -10,6 +10,8 @@ private:
 	Vector2u windowBounds;
 	Vector2f direction;
 
+	float dtMultiplier;
+
 	int type;
 	int hp;
 	int hpMax;
@@ -34,7 +36,7 @@ public:
 
 	//Functions
 	void takeDamage(int damage);
-	void Update();
+	void Update(const float &dt);
 	void Draw(RenderTarget &target);
 };
 

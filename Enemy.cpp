@@ -7,6 +7,8 @@ Enemy::Enemy(Texture *texture, Vector2u windowBounds,
 	Vector2f scale, int type,
 	int hpMax, int damageMax, int damageMin)
 {
+	this->dtMultiplier = 62.5f;
+
 	this->texture = texture;
 	this->sprite.setTexture(*this->texture);
 	this->sprite.setScale(scale);
@@ -37,14 +39,14 @@ void Enemy::takeDamage(int damage)
 		this->hp = 0;
 }
 
-void Enemy::Update()
+void Enemy::Update(const float &dt)
 {
 	switch (this->type)
 	{
 	case 0:
 
-		this->sprite.move(this->direction.x * 10.f, 
-			this->direction.y * 10.f);
+		this->sprite.move(this->direction.x * 10.f * dt * this->dtMultiplier, 
+			this->direction.y * 10.f* dt * this->dtMultiplier);
 
 		break;
 
