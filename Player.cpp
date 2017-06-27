@@ -254,7 +254,7 @@ void Player::Combat(const float &dt)
 					Vector2f(this->playerCenter.x, this->playerCenter.y - 25.f),
 					Vector2f(0.05f, 0.05f),
 					Vector2f(1.f, 0.f), 
-					2.f, 50.f, 1.f));
+					0.f, 50.f, 1.f));
 
 			if (this->dualMissiles01)
 			{
@@ -263,7 +263,7 @@ void Player::Combat(const float &dt)
 						Vector2f(this->playerCenter.x, this->playerCenter.y + 25.f),
 						Vector2f(0.05f, 0.05f),
 						Vector2f(1.f, 0.f),
-						2.f, 50.f, 1.f));
+						0.f, 50.f, 1.f));
 			}
 		}
 		else if (this->currentWeapon == MISSILE02)
