@@ -1,3 +1,12 @@
-﻿  Player.cpp
+﻿  Enemy.cpp
+h:\wingman\wingman\enemy.cpp(27): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+h:\wingman\wingman\enemy.cpp(81): warning C4305: '=': truncation from 'double' to 'float'
+h:\wingman\wingman\enemy.cpp(83): warning C4305: '=': truncation from 'double' to 'float'
+h:\wingman\wingman\enemy.cpp(86): warning C4305: '=': truncation from 'double' to 'float'
+h:\wingman\wingman\enemy.cpp(88): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+h:\wingman\wingman\darr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\darr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  h:\wingman\wingman\enemy.cpp(15): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  h:\wingman\wingman\enemy.cpp(13): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.pdb (Full PDB)

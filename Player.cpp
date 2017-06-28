@@ -7,16 +7,27 @@ enum weapons {LASER = 0, MISSILE01, MISSILE02};
 
 Player::Player(
 	std::vector<Texture> &textures,
+	dArr<Texture> &lWingTextures,
+	dArr<Texture> &rWingTextures,
+	dArr<Texture> &cPitTextures,
+	dArr<Texture> &auraTextures,
 	int UP, int DOWN,
 	int LEFT, int RIGHT,
 	int SHOOT)
+
 	:level(1), exp(0),
 	hp(10), hpMax(10),
+	statPoints(0), cooling(0), 
+	plating(0), wiring(0), power(0),
 	damage(1), damageMax(2),
 	score(0)
 {
 	//Dt
 	this->dtMultiplier = 62.5f;
+
+	//Keytime
+	this->keyTimeMax = 8.f;
+	this->keyTime = this->keyTimeMax;
 
 	//Stats
 	this->expNext = 20 + static_cast<int>(
@@ -26,8 +37,6 @@ Player::Player(
 			* level - 12)
 		);
 
-	std::cout << this->expNext << "\n";
-
 	//Update positions
 	this->playerCenter.x = this->sprite.getPosition().x +
 		this->sprite.getGlobalBounds().width / 2;
@@ -35,8 +44,14 @@ Player::Player(
 		this->sprite.getGlobalBounds().height / 2;
 
 	//Textures & Sprites
+	this->lWingTextures = &lWingTextures;
+	this->rWingTextures = &rWingTextures;
+	this->cPitTextures = &cPitTextures;
+	this->auraTextures = &auraTextures;
+
 	this->sprite.setTexture(textures[0]);
-	this->sprite.setScale(0.13f, 0.13f);
+	this->sprite.setScale(0.09f, 0.09f);
+	this->sprite.setColor(Color(10, 10, 10, 255));
 
 	this->laserTexture = &textures[1];
 	this->missile01Texture = &textures[2];
@@ -54,11 +69,62 @@ Player::Player(
 		this->playerCenter.y
 	);
 
+	//Accessories
+
+	//Selectors
+	this->lWingSelect = 1;
+	this->rWingSelect = 1;
+	this->cPitSelect = 1;
+	this->auraSelect = 1;
+
+	//Acceccory textures
+	this->lWing.setTexture((*this->lWingTextures)[this->lWingSelect]);
+	this->rWing.setTexture((*this->rWingTextures)[this->rWingSelect]);
+	this->cPit.setTexture((*this->cPitTextures)[this->cPitSelect]);
+	this->aura.setTexture((*this->auraTextures)[this->auraSelect]);
+
+	//Init accessories
+	this->lWing.setOrigin(
+		this->lWing.getGlobalBounds().width / 2,
+		this->lWing.getGlobalBounds().height / 2
+		);
+
+	this->lWing.setPosition(this->playerCenter);
+	this->lWing.setRotation(90.f);
+	this->lWing.setScale(0.8f, 0.8f);
+
+	this->rWing.setOrigin(
+		this->rWing.getGlobalBounds().width / 2,
+		this->rWing.getGlobalBounds().height / 2
+	);
+
+	this->rWing.setPosition(this->playerCenter);
+	this->rWing.setRotation(90.f);
+	this->rWing.setScale(0.8f, 0.8f);
+
+	this->cPit.setOrigin(
+		this->cPit.getGlobalBounds().width / 2,
+		this->cPit.getGlobalBounds().height / 2
+		);
+
+	this->cPit.setPosition(this->playerCenter);
+	this->cPit.setRotation(90.f);
+	this->cPit.setScale(0.8f, 0.8f);
+
+	this->aura.setOrigin(
+		this->aura.getGlobalBounds().width / 2,
+		this->aura.getGlobalBounds().height / 2
+		);
+
+	this->aura.setPosition(this->playerCenter);
+	this->aura.setRotation(90.f);
+	this->aura.setScale(0.8f, 0.8f);
+
 	//Timers
 	this->shootTimerMax = 25.f;
 	this->shootTimer = this->shootTimerMax;
-	this->damageTimer = 10.f;
-	this->damageTimer = this->damageTimer;
+	this->damageTimerMax = 40.f;
+	this->damageTimer = this->damageTimerMax;
 
 	//Controls
 	this->controls[controls::UP] = UP;
@@ -90,7 +156,47 @@ Player::~Player()
 
 }
 
-void Player::UpdateLeveling()
+int Player::getDamage()const
+{ 
+	int damage = 0;
+
+	switch (this->currentWeapon)
+	{
+	case LASER:
+
+		damage = rand() % this->damageMax + this->damage;
+
+		break;
+	case MISSILE01:
+
+		damage = rand() % this->damageMax + this->damage;
+		damage *= 2;
+
+		break;
+	case MISSILE02:
+
+		damage = rand() % this->damageMax + this->damage;
+		damage *= 4;
+
+		break;
+	default:
+
+		damage = rand() % this->damageMax + this->damage;
+
+		break;
+	}
+
+	return damage;
+}
+
+void Player::takeDamage(int damage)
+{ 
+	this->hp -= damage; 
+
+	this->damageTimer = 0;
+}
+
+bool Player::UpdateLeveling()
 {
 	if (this->exp >= this->expNext)
 	{
@@ -98,6 +204,72 @@ void Player::UpdateLeveling()
 		this->statPoints++;
 		this->exp -= this->expNext;
 		this->expNext = static_cast<int>((50 / 3)*((pow(level, 3) - 6 * pow(level, 2)) + 17 * level - 12));
+
+		this->wiring++;
+		this->cooling++;
+		this->plating++;
+		this->power++;
+
+		this->hpMax = 10 + plating * 5;
+		this->damageMax = 2 + power*2;
+		this->damage = 1 + power;
+
+		this->hp = hpMax;
+
+		return true;
+	}
+
+	return false;
+}
+
+void Player::ChangeAccessories()
+{
+	if (Keyboard::isKeyPressed(Keyboard::Num1) && this->keyTime >= this->keyTimeMax)
+	{
+		if (lWingSelect < (*this->lWingTextures).size() - 1)
+			lWingSelect++;
+		else
+			lWingSelect = 0;
+
+		this->lWing.setTexture((*this->lWingTextures)[lWingSelect]);
+
+		this->keyTime = 0;
+	}
+
+	if (Keyboard::isKeyPressed(Keyboard::Num2) && this->keyTime >= this->keyTimeMax)
+	{
+		if (rWingSelect < (*this->rWingTextures).size() - 1)
+			rWingSelect++;
+		else
+			rWingSelect = 0;
+
+		this->rWing.setTexture((*this->rWingTextures)[rWingSelect]);
+
+		this->keyTime = 0;
+	}
+
+	if (Keyboard::isKeyPressed(Keyboard::Num3) && this->keyTime >= this->keyTimeMax)
+	{
+		if (cPitSelect < (*this->cPitTextures).size() - 1)
+			cPitSelect++;
+		else
+			cPitSelect = 0;
+
+		this->cPit.setTexture((*this->cPitTextures)[cPitSelect]);
+
+		this->keyTime = 0;
+	}
+
+	if (Keyboard::isKeyPressed(Keyboard::Num4) && this->keyTime >= this->keyTimeMax)
+	{
+		if (auraSelect < (*this->auraTextures).size() - 1)
+			auraSelect++;
+		else
+			auraSelect = 0;
+
+		this->aura.setTexture((*this->auraTextures)[auraSelect]);
+
+		this->keyTime = 0;
 	}
 }
 
@@ -122,6 +294,28 @@ void Player::UpdateAccessories(const float &dt)
 			this->playerCenter.y
 		);
 	}
+
+	//Left wing
+	this->lWing.setPosition(
+		playerCenter.x + -abs(this->currentVelocity.x), 
+		playerCenter.y + -abs(this->currentVelocity.x/2 + this->currentVelocity.y/2)
+	);
+
+	//Right wing
+	this->rWing.setPosition(
+		playerCenter.x + -abs(this->currentVelocity.x), 
+		playerCenter.y + abs(this->currentVelocity.x / 2 + this->currentVelocity.y / 2)
+	);
+
+	//Cockpit
+	this->cPit.setPosition(
+		playerCenter.x + this->currentVelocity.x, 
+		playerCenter.y
+	);
+
+	//Aura
+	this->aura.setPosition(playerCenter);
+	this->aura.rotate(3.f * dt * this->dtMultiplier);
 }
 
 void Player::Movement(const float &dt)
@@ -227,7 +421,7 @@ void Player::Combat(const float &dt)
 			//Create bullet
 			if (this->mainGunLevel == 0)
 			{
-				this->bullets.push_back(
+				this->bullets.add(
 					Bullet(laserTexture,
 						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y),
 						Vector2f(0.2f, 0.2f),
@@ -249,7 +443,7 @@ void Player::Combat(const float &dt)
 		else if (this->currentWeapon == MISSILE01)
 		{
 			//Create bullet
-			this->bullets.push_back(
+			this->bullets.add(
 				Bullet(missile01Texture,
 					Vector2f(this->playerCenter.x, this->playerCenter.y - 25.f),
 					Vector2f(0.05f, 0.05f),
@@ -258,7 +452,7 @@ void Player::Combat(const float &dt)
 
 			if (this->dualMissiles01)
 			{
-				this->bullets.push_back(
+				this->bullets.add(
 					Bullet(missile01Texture,
 						Vector2f(this->playerCenter.x, this->playerCenter.y + 25.f),
 						Vector2f(0.05f, 0.05f),
@@ -276,6 +470,45 @@ void Player::Combat(const float &dt)
 	
 		this->shootTimer = 0; //RESET TIMER!
 	}
+
+	//DAMAGED
+	if (this->isDamageCooldown())
+	{
+		if ((int)this->damageTimer % 2 == 0)
+		{
+			this->lWing.setColor(Color::Red);
+			this->rWing.setColor(Color::Red);
+			this->cPit.setColor(Color::Red);
+		}
+		else
+		{
+			this->lWing.setColor(Color::White);
+			this->rWing.setColor(Color::White);
+			this->cPit.setColor(Color::White);
+		}
+	}
+	else
+	{
+		this->lWing.setColor(Color::White);
+		this->rWing.setColor(Color::White);
+		this->cPit.setColor(Color::White);
+	}
+}
+
+Bullet& Player::getBullet(unsigned index)
+{
+	if (index < 0 || index > this->bullets.size())
+		throw"OUT OF BOUNDS! PLAYER::GETBULLET!";
+
+	return this->bullets[index];
+}
+
+void Player::removeBullet(unsigned index)
+{
+	if (index < 0 || index > this->bullets.size())
+		throw"OUT OF BOUNDS! PLAYER::REMOVEBULLET!";
+
+	this->bullets.remove(index);
 }
 
 void Player::Update(Vector2u windowBounds, const float &dt)
@@ -287,13 +520,19 @@ void Player::Update(Vector2u windowBounds, const float &dt)
 	if (this->damageTimer < this->damageTimerMax)
 		this->damageTimer += 1.f * dt * this->dtMultiplier;
 
+	if (this->keyTime < this->keyTimeMax)
+		this->keyTime += 1.f * dt * this->dtMultiplier;
+
 	this->Movement(dt);
+	this->ChangeAccessories();
 	this->UpdateAccessories(dt);
 	this->Combat(dt);
 }
 
 void Player::Draw(RenderTarget &target)
 {
+	target.draw(this->aura);
+
 	for (size_t i = 0; i < this->bullets.size(); i++)
 	{
 		this->bullets[i].Draw(target);
@@ -302,4 +541,8 @@ void Player::Draw(RenderTarget &target)
 	target.draw(this->mainGunSprite);
 
 	target.draw(this->sprite);
+
+	target.draw(this->cPit);
+	target.draw(this->lWing);
+	target.draw(this->rWing);
 }
