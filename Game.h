@@ -6,8 +6,18 @@
 class Game
 {
 private:
+
+	//Game
 	RenderWindow *window;
 	float dtMultiplier;
+
+	//Score
+	unsigned score;
+	unsigned scoreMultiplier;
+	float multiplierTimerMax;
+	float multiplierTimer;
+	int multiplierAdder;
+	int multiplierAdderMax;
 
 	//UI
 	//Text
@@ -16,6 +26,7 @@ private:
 	Text staticPlayerText;
 	Text enemyText;
 	Text gameOverText;
+	Text scoreText;
 
 	//Bars
 	RectangleShape playerExpBar;
@@ -36,12 +47,12 @@ private:
 	//Textures
 	std::vector<Texture> textures;
 	dArr<Texture> enemyTextures;
+	dArr<Texture> enemyBulletTextures;
 	dArr<Texture> lWingTextures;
 	dArr<Texture> rWingTextures;
 	dArr<Texture> cPitTextures;
 	dArr<Texture> auraTextures;
 
-	
 public:
 	Game(RenderWindow *window);
 	virtual ~Game();

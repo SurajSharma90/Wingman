@@ -7,6 +7,12 @@ Game::Game(RenderWindow *window)
 	this->window = window;
 	//this->window->setFramerateLimit(200);
 	this->dtMultiplier = 62.5f;
+	this->scoreMultiplier = 1;
+	this->score = 0;
+	this->multiplierAdderMax = 10;
+	this->multiplierAdder = 0;
+	this->multiplierTimerMax = 400.f;
+	this->multiplierTimer = this->multiplierTimerMax;
 
 	//Init fonts
 	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
@@ -58,6 +64,11 @@ void Game::InitTextures()
 	this->enemyTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/enemyFollow.png");
 	this->enemyTextures.add(Texture(temp));
+	temp.loadFromFile("Textures/enemyMoveLeftShoot.png");
+	this->enemyTextures.add(Texture(temp));
+
+	temp.loadFromFile("Textures/Guns/enemyBullet.png");
+	this->enemyBulletTextures.add(Texture(temp));
 
 	//INit accessory textures
 	std::ifstream in;
@@ -149,6 +160,12 @@ void Game::InitUI()
 	this->gameOverText.setCharacterSize(40);
 	this->gameOverText.setString("GAME OVER!");
 	this->gameOverText.setPosition(this->window->getSize().x/2 - 100.f, this->window->getSize().y / 2);
+
+	this->scoreText.setFont(this->font);
+	this->scoreText.setFillColor(Color(200,200,200,150));
+	this->scoreText.setCharacterSize(32);
+	this->scoreText.setString("Score: 0");
+	this->scoreText.setPosition(10.f, 10.f);
 }
 
 void Game::UpdateUIPlayer(int index)
@@ -189,7 +206,8 @@ void Game::UpdateUIEnemy(int index)
 {
 	this->enemyText.setPosition(
 		this->enemies[index].getPosition().x,
-		this->enemies[index].getPosition().y - 15.f
+		this->enemies[index].getPosition().y
+		- this->enemies[index].getGlobalBounds().height
 	);
 
 	this->enemyText.setString(
@@ -207,14 +225,33 @@ void Game::Update(const float &dt)
 		if (this->enemySpawnTimer < this->enemySpawnTimerMax)
 			this->enemySpawnTimer += 1.f * dt * this->dtMultiplier;
 
+		//Score timer and multipliers
+		if (this->multiplierTimer > 0.f)
+		{
+			this->multiplierTimer -= 1.f * dt * this->dtMultiplier;
+			
+			if (this->multiplierTimer <= 0.f)
+			{
+				this->multiplierTimer = 0.f;
+				this->multiplierAdder = 0;
+				this->scoreMultiplier = 1;
+			}
+		}
+		
+		this->scoreMultiplier = this->multiplierAdder / this->multiplierAdderMax + 1;
+
 		//Spawn enemies
 		if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
 		{
 			this->enemies.add(Enemy(
-				this->enemyTextures, this->window->getSize(),
+				this->enemyTextures, 
+				this->enemyBulletTextures,
+				this->window->getSize(),
 				Vector2f(0.f, 0.f),
-				Vector2f(-1.f, 0.f), Vector2f(0.1f, 0.1f),
-				rand()%2, rand() % 3 + 1, 2, 1, rand()%this->playersAlive)
+				Vector2f(-1.f, 0.f), 
+				rand()%3, 
+				this->players[(rand()%playersAlive)].getLevel(), 
+				rand()%this->playersAlive)
 			);
 
 			this->enemySpawnTimer = 0; //Reset timer
@@ -268,9 +305,25 @@ void Game::Update(const float &dt)
 								int exp = this->enemies[j].getHPMax()
 									+ (rand() % this->enemies[j].getHPMax() + 1);
 
-								//GAIN SCORE
-								int score = this->enemies[j].getHPMax();
+								//GAIN SCORE & RESET MULTIPLIER TIMER
+								this->multiplierTimer = this->multiplierTimerMax;
+								int score = this->enemies[j].getHPMax() * this->scoreMultiplier;
+								this->multiplierAdder++;
 								this->players[i].gainScore(score);
+
+								//SCORE TEXT TAG
+								this->textTags.add(
+									TextTag(&this->font,
+										"+ " + std::to_string(score) + 
+										"	( x" + std::to_string(this->scoreMultiplier) + " )",
+										Color::White,
+										Vector2f(100.f, 10.f),
+										Vector2f(1.f, 0.f),
+										30,
+										30.f,
+										true
+									)
+								);
 
 								//LEVEL UP TAG
 								if (this->players[i].gainExp(exp))
@@ -320,12 +373,34 @@ void Game::Update(const float &dt)
 					}
 				}
 			}
+
+			//UPDATE SCORE
+			this->score = 0;
+			this->score += players[i].getScore();
+			this->scoreText.setString(
+				"Score: " +
+				std::to_string(this->score) +
+				"\nMultiplier:" +
+				std::to_string(this->scoreMultiplier) +
+				"\nMultiplier Timer:" +
+				std::to_string((int)this->multiplierTimer) +
+				"\nNew Multiplier: " +
+				std::to_string(this->multiplierAdder) + 
+				" / " +
+				std::to_string(this->multiplierAdderMax)
+			);
 		}
 
 		//Update enemies
 		for (size_t i = 0; i < this->enemies.size(); i++)
 		{
 			this->enemies[i].Update(dt, this->players[this->enemies[i].getPlayerFollowNr()].getPosition());
+
+			//Enemy bullet update
+			for (size_t k = 0; k < this->enemies[i].getBullets().size(); k++)
+			{
+				this->enemies[i].getBullets()[k].Update(dt);
+			}
 
 			//Enemy player collision
 			for (size_t k = 0; k < this->players.size(); k++)
@@ -339,6 +414,8 @@ void Game::Update(const float &dt)
 						
 						this->players[k].takeDamage(damage);
 						
+						this->enemies[i].collision();
+
 						//Create text tag
 						this->textTags.add(
 							TextTag(&this->font,
@@ -386,7 +463,20 @@ void Game::Update(const float &dt)
 
 void Game::DrawUI()
 {
+	//Draw texttags
+	for (size_t i = 0; i < this->textTags.size(); i++)
+	{
+		this->textTags[i].Draw(*this->window);
+	}
 
+	//GAME OVER TEXT
+	if (this->playersAlive <= 0)
+	{
+		this->window->draw(this->gameOverText);
+	}
+
+	//Score text
+	this->window->draw(this->scoreText);
 }
 
 void Game::Draw()
@@ -417,17 +507,7 @@ void Game::Draw()
 		this->window->draw(this->enemyText);
 	}
 
-	//Draw texttags
-	for (size_t i = 0; i < this->textTags.size(); i++)
-	{
-		this->textTags[i].Draw(*this->window);
-	}
-
-	//GAME OVER TEXT
-	if (this->playersAlive <= 0)
-	{
-		this->window->draw(this->gameOverText);
-	}
+	this->DrawUI();
 
 	this->window->display();
 }

@@ -48,6 +48,7 @@ private:
 	float acceleration;
 	Vector2f direction;
 	float stabilizerForce;
+	Vector2f normDir;
 
 	int level;
 	int exp;
@@ -115,11 +116,25 @@ public:
 	void ChangeAccessories();
 	void UpdateAccessories(const float &dt);
 	void Combat(const float &dt);
-	void Movement(const float &dt);
+	void Movement(Vector2u windowBounds, const float &dt);
 	void Update(Vector2u windowBounds, const float &dt);
 	void Draw(RenderTarget &target);
 
 	//Statics
 	static unsigned players;
+
+	//Regular functions
+	float vectorLength(Vector2f v)
+	{
+		return sqrt(pow(v.x, 2) + pow(v.y, 2));
+	}
+
+	Vector2f normalize(Vector2f v, float length)
+	{
+		if (length == 0)
+			return Vector2f(0.f, 0.f);
+		else
+			return v / length;
+	}
 };
 

@@ -11,6 +11,7 @@ private:
 	Sprite sprite;
 
 	Vector2f currentVelocity;
+	float initialVelocity;
 	float maxVelocity;
 	float acceleration;
 	Vector2f direction;

@@ -194,6 +194,9 @@ void Player::takeDamage(int damage)
 	this->hp -= damage; 
 
 	this->damageTimer = 0;
+
+	this->currentVelocity.x += -this->normDir.x*10.f;
+	this->currentVelocity.y += -this->normDir.y*10.f;
 }
 
 bool Player::UpdateLeveling()
@@ -318,8 +321,11 @@ void Player::UpdateAccessories(const float &dt)
 	this->aura.rotate(3.f * dt * this->dtMultiplier);
 }
 
-void Player::Movement(const float &dt)
+void Player::Movement(Vector2u windowBounds, const float &dt)
 {
+	//Update normalized direction
+	this->normDir = normalize(this->currentVelocity, vectorLength(this->currentVelocity));
+
 	//UP
 	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[controls::UP])))
 	{
@@ -409,6 +415,30 @@ void Player::Movement(const float &dt)
 		this->sprite.getGlobalBounds().width / 2;
 	this->playerCenter.y = this->sprite.getPosition().y +
 		this->sprite.getGlobalBounds().height / 2;
+
+	//Window collision
+	//left
+	if (this->getPosition().x <= 0)
+	{
+		this->sprite.setPosition(0.f, this->sprite.getPosition().y);
+		this->currentVelocity.x = 0.f;
+	}
+	else if (this->getPosition().y <= 0)
+	{
+		this->sprite.setPosition(this->sprite.getPosition().x, 0.f);
+		this->currentVelocity.y = 0.f;
+	}
+	else if (this->getPosition().x + this->getGlobalBounds().width >= windowBounds.x)
+	{
+		this->sprite.setPosition(windowBounds.x - this->getGlobalBounds().width, this->sprite.getPosition().y);
+		this->currentVelocity.x = 0.f;
+	}
+	else if (this->getPosition().y + this->getGlobalBounds().height >= windowBounds.y)
+	{
+		this->sprite.setPosition(this->sprite.getPosition().x, windowBounds.y - this->getGlobalBounds().height);
+		this->currentVelocity.y = 0.f;
+	}
+		
 }
 
 void Player::Combat(const float &dt)
@@ -523,7 +553,7 @@ void Player::Update(Vector2u windowBounds, const float &dt)
 	if (this->keyTime < this->keyTimeMax)
 		this->keyTime += 1.f * dt * this->dtMultiplier;
 
-	this->Movement(dt);
+	this->Movement(windowBounds, dt);
 	this->ChangeAccessories();
 	this->UpdateAccessories(dt);
 	this->Combat(dt);
