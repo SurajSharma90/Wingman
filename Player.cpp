@@ -7,6 +7,7 @@ enum weapons {LASER = 0, MISSILE01, MISSILE02};
 
 Player::Player(
 	std::vector<Texture> &textures,
+	dArr<Texture> &mainGunTextures,
 	dArr<Texture> &lWingTextures,
 	dArr<Texture> &rWingTextures,
 	dArr<Texture> &cPitTextures,
@@ -26,7 +27,7 @@ Player::Player(
 	this->dtMultiplier = 62.5f;
 
 	//Keytime
-	this->keyTimeMax = 8.f;
+	this->keyTimeMax = 10.f;
 	this->keyTime = this->keyTimeMax;
 
 	//Stats
@@ -52,11 +53,13 @@ Player::Player(
 	this->sprite.setTexture(textures[0]);
 	this->sprite.setScale(0.09f, 0.09f);
 	this->sprite.setColor(Color(10, 10, 10, 255));
+	this->sprite.setPosition(100.f, 100.f);
 
 	this->laserTexture = &textures[1];
 	this->missile01Texture = &textures[2];
 
-	this->mainGunSprite.setTexture(textures[3]);
+	this->mainGunTextures = &mainGunTextures;
+	this->mainGunSprite.setTexture((*this->mainGunTextures)[0]);
 	this->mainGunSprite.setOrigin(
 		this->mainGunSprite.getGlobalBounds().width / 2,
 		this->mainGunSprite.getGlobalBounds().height / 2
@@ -143,8 +146,12 @@ Player::Player(
 
 	//Upgrades
 	this->mainGunLevel = 0;
+	this->piercingShot = false;
+	this->shield = false;
 	this->dualMissiles01 = false;
 	this->dualMissiles02 = false;
+
+	this->setGunLevel(0);
 
 	//Add number of players for coop
 	this->playerNr = Player::players;
@@ -225,8 +232,11 @@ bool Player::UpdateLeveling()
 	return false;
 }
 
-void Player::ChangeAccessories()
+void Player::ChangeAccessories(const float &dt)
 {
+	if (this->keyTime < this->keyTimeMax)
+		this->keyTime += 1.f * dt * this->dtMultiplier;
+
 	if (Keyboard::isKeyPressed(Keyboard::Num1) && this->keyTime >= this->keyTimeMax)
 	{
 		if (lWingSelect < (*this->lWingTextures).size() - 1)
@@ -460,11 +470,42 @@ void Player::Combat(const float &dt)
 			}
 			else if (this->mainGunLevel == 1)
 			{
+				this->bullets.add(
+					Bullet(laserTexture,
+						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y - 15.f),
+						Vector2f(0.2f, 0.2f),
+						Vector2f(1.f, 0.f),
+						20.f, 60.f, 5.f));
 
+				this->bullets.add(
+					Bullet(laserTexture,
+						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y + 15.f),
+						Vector2f(0.2f, 0.2f),
+						Vector2f(1.f, 0.f),
+						20.f, 60.f, 5.f));
 			}
 			else if (this->mainGunLevel == 2)
 			{
+				this->bullets.add(
+					Bullet(laserTexture,
+						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y - 41.f),
+						Vector2f(0.2f, 0.2f),
+						Vector2f(1.f, 0.f),
+						20.f, 60.f, 5.f));
 
+				this->bullets.add(
+					Bullet(laserTexture,
+						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y),
+						Vector2f(0.2f, 0.2f),
+						Vector2f(1.f, 0.f),
+						20.f, 60.f, 5.f));
+
+				this->bullets.add(
+					Bullet(laserTexture,
+						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y + 43.f),
+						Vector2f(0.2f, 0.2f),
+						Vector2f(1.f, 0.f),
+						20.f, 60.f, 5.f));
 			}
 
 			//Animate gun
@@ -541,6 +582,42 @@ void Player::removeBullet(unsigned index)
 	this->bullets.remove(index);
 }
 
+void Player::setGunLevel(int gunLevel) 
+{ 
+	this->mainGunLevel = gunLevel; 
+
+	if (this->mainGunLevel < (*this->mainGunTextures).size())
+		this->mainGunSprite.setTexture((*this->mainGunTextures)[this->mainGunLevel]);
+	else
+		std::cout << "NO TEXTURE FOR THAT MAIN GUN!" << "\n";
+}
+
+void Player::Reset()
+{
+	this->hpMax = 10;
+	this->hp = this->hpMax;
+	this->sprite.setPosition(Vector2f(100.f, 100.f));
+	this->bullets.clear();
+	this->setGunLevel(0);
+	this->wiring = 0;
+	this->cooling = 0;
+	this->power = 0;
+	this->plating = 0;
+	this->dualMissiles01 = false;
+	this->dualMissiles02 = false;
+	this->shield = false;
+	this->piercingShot = false;
+	this->currentVelocity.x = 0;
+	this->currentVelocity.y = 0;
+	this->level = 1;
+	this->exp = 0;
+	this->expNext = 20;
+	this->currentWeapon = LASER;
+	this->statPoints = 0;
+	this->shootTimer = this->shootTimerMax;
+	this->damageTimer = this->damageTimerMax;
+}
+
 void Player::Update(Vector2u windowBounds, const float &dt)
 {
 	//Update timers
@@ -550,11 +627,8 @@ void Player::Update(Vector2u windowBounds, const float &dt)
 	if (this->damageTimer < this->damageTimerMax)
 		this->damageTimer += 1.f * dt * this->dtMultiplier;
 
-	if (this->keyTime < this->keyTimeMax)
-		this->keyTime += 1.f * dt * this->dtMultiplier;
-
 	this->Movement(windowBounds, dt);
-	this->ChangeAccessories();
+	this->ChangeAccessories(dt);
 	this->UpdateAccessories(dt);
 	this->Combat(dt);
 }

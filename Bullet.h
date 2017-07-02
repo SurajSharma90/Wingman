@@ -26,6 +26,7 @@ public:
 	//Accessors
 	inline FloatRect getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
 	inline const Vector2f& getPosition()const { return this->sprite.getPosition(); }
+	inline void setPosition(Vector2f position) { this->sprite.setPosition(position); }
 
 	//Functions
 	void Movement(const float &dt);

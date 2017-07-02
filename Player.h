@@ -24,6 +24,7 @@ private:
 	//Accessories
 	Sprite mainGunSprite;
 	dArr<Bullet> bullets;
+	dArr<Texture> *mainGunTextures;
 	Texture *laserTexture;
 	Texture *missile01Texture;
 	Texture *missile02Texture;
@@ -72,11 +73,14 @@ private:
 
 	//UPGRADES
 	int mainGunLevel;
+	bool piercingShot;
+	bool shield;
 	bool dualMissiles01;
 	bool dualMissiles02;
 
 public:
 	Player(std::vector<Texture> &textures,
+		dArr<Texture> &mainGunTextures,
 		dArr<Texture> &lWingTextures,
 		dArr<Texture> &rWingTextures, 
 		dArr<Texture> &cPitTextures,
@@ -110,10 +114,25 @@ public:
 	inline void gainScore(int score) { this->score += score; }
 	inline const int getScore()const { return this->score; }
 	inline bool isDamageCooldown() { return this->damageTimer < this->damageTimerMax; }
+	inline void gainHP(int hp)
+	{
+		this->hp += hp;
+		if (this->hp > this->hpMax)
+			this->hp = this->hpMax;
+	}
+	void setGunLevel(int gunLevel);
+	inline void enablePiercingShot() { this->piercingShot = true; }
+	inline void enableShield() { this->shield = true; }
+	inline void enableDualMissiles01() { this->dualMissiles01 = true; }
+	inline void enableDualMissiles02() { this->dualMissiles02 = true; }
+	inline void upgradeHP() { this->hpMax += 10; this->hp = this->hpMax; }
+	inline bool getPiercingShot()const { return this->piercingShot; }
+	inline const int& getGunLevel()const { return this->mainGunLevel; }
 
 	//Functions
+	void Reset();
 	bool UpdateLeveling();
-	void ChangeAccessories();
+	void ChangeAccessories(const float &dt);
 	void UpdateAccessories(const float &dt);
 	void Combat(const float &dt);
 	void Movement(Vector2u windowBounds, const float &dt);
