@@ -2,7 +2,7 @@
 
 unsigned Player::players = 0;
 
-enum controls {UP = 0, DOWN, LEFT, RIGHT, SHOOT};
+enum controls {UP = 0, DOWN, LEFT, RIGHT, SHOOT, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA};
 enum weapons {LASER = 0, MISSILE01, MISSILE02};
 
 Player::Player(
@@ -12,12 +12,19 @@ Player::Player(
 	dArr<Texture> &rWingTextures,
 	dArr<Texture> &cPitTextures,
 	dArr<Texture> &auraTextures,
-	int UP, int DOWN,
-	int LEFT, int RIGHT,
-	int SHOOT)
+	int UP,
+	int DOWN,
+	int LEFT,
+	int RIGHT,
+	int SHOOT,
+	int STATS,
+	int CHANGE_LWING,
+	int CHANGE_CPIT,
+	int CHANGE_RWING,
+	int CHANGE_AURA)
 
 	:level(1), exp(0),
-	hp(10), hpMax(10),
+	hp(10), hpMax(10),hpAdded(10),
 	statPoints(0), cooling(0), 
 	plating(0), wiring(0), power(0),
 	damage(1), damageMax(2),
@@ -124,17 +131,23 @@ Player::Player(
 	this->aura.setScale(0.8f, 0.8f);
 
 	//Timers
-	this->shootTimerMax = 25.f;
+	this->shootTimerMax = 20.f;
 	this->shootTimer = this->shootTimerMax;
 	this->damageTimerMax = 40.f;
 	this->damageTimer = this->damageTimerMax;
 
 	//Controls
-	this->controls[controls::UP] = UP;
-	this->controls[controls::DOWN] = DOWN;
-	this->controls[controls::LEFT] = LEFT;
-	this->controls[controls::RIGHT] = RIGHT;
-	this->controls[controls::SHOOT] = SHOOT;
+	//FOLLOW CONTROLS ENUM TEMPLATE!
+	this->controls.add(int(UP));
+	this->controls.add(int(DOWN));
+	this->controls.add(int(LEFT));
+	this->controls.add(int(RIGHT));
+	this->controls.add(int(SHOOT));
+	this->controls.add(int(STATS));
+	this->controls.add(int(CHANGE_LWING));
+	this->controls.add(int(CHANGE_CPIT));
+	this->controls.add(int(CHANGE_RWING));
+	this->controls.add(int(CHANGE_AURA));
 
 	//Velocity & Acceleration
 	this->maxVelocity = 25.f;
@@ -206,7 +219,7 @@ void Player::takeDamage(int damage)
 	this->currentVelocity.y += -this->normDir.y*10.f;
 }
 
-bool Player::UpdateLeveling()
+bool Player::updateLeveling()
 {
 	if (this->exp >= this->expNext)
 	{
@@ -220,9 +233,7 @@ bool Player::UpdateLeveling()
 		this->plating++;
 		this->power++;
 
-		this->hpMax = 10 + plating * 5;
-		this->damageMax = 2 + power*2;
-		this->damage = 1 + power;
+		this->updateStats();
 
 		this->hp = hpMax;
 
@@ -232,12 +243,19 @@ bool Player::UpdateLeveling()
 	return false;
 }
 
-void Player::ChangeAccessories(const float &dt)
+void Player::updateStats()
+{
+	this->hpMax = hpAdded + plating * 5;
+	this->damageMax = 2 + power * 2;
+	this->damage = 1 + power;
+}
+
+void Player::changeAccessories(const float &dt)
 {
 	if (this->keyTime < this->keyTimeMax)
 		this->keyTime += 1.f * dt * this->dtMultiplier;
 
-	if (Keyboard::isKeyPressed(Keyboard::Num1) && this->keyTime >= this->keyTimeMax)
+	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[CHANGE_LWING])) && this->keyTime >= this->keyTimeMax)
 	{
 		if (lWingSelect < (*this->lWingTextures).size() - 1)
 			lWingSelect++;
@@ -249,7 +267,7 @@ void Player::ChangeAccessories(const float &dt)
 		this->keyTime = 0;
 	}
 
-	if (Keyboard::isKeyPressed(Keyboard::Num2) && this->keyTime >= this->keyTimeMax)
+	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[CHANGE_RWING])) && this->keyTime >= this->keyTimeMax)
 	{
 		if (rWingSelect < (*this->rWingTextures).size() - 1)
 			rWingSelect++;
@@ -261,7 +279,7 @@ void Player::ChangeAccessories(const float &dt)
 		this->keyTime = 0;
 	}
 
-	if (Keyboard::isKeyPressed(Keyboard::Num3) && this->keyTime >= this->keyTimeMax)
+	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[CHANGE_CPIT])) && this->keyTime >= this->keyTimeMax)
 	{
 		if (cPitSelect < (*this->cPitTextures).size() - 1)
 			cPitSelect++;
@@ -273,7 +291,7 @@ void Player::ChangeAccessories(const float &dt)
 		this->keyTime = 0;
 	}
 
-	if (Keyboard::isKeyPressed(Keyboard::Num4) && this->keyTime >= this->keyTimeMax)
+	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[CHANGE_AURA])) && this->keyTime >= this->keyTimeMax)
 	{
 		if (auraSelect < (*this->auraTextures).size() - 1)
 			auraSelect++;
@@ -286,7 +304,7 @@ void Player::ChangeAccessories(const float &dt)
 	}
 }
 
-void Player::UpdateAccessories(const float &dt)
+void Player::updateAccessories(const float &dt)
 {
 	//Set the position of gun to follow player
 	this->mainGunSprite.setPosition(
@@ -297,7 +315,7 @@ void Player::UpdateAccessories(const float &dt)
 	//Animate the main gun and correct it after firing
 	if (this->mainGunSprite.getPosition().x < this->playerCenter.x + 20.f)
 	{
-		this->mainGunSprite.move(2.f * dt * this->dtMultiplier 
+		this->mainGunSprite.move(5.f * dt * this->dtMultiplier 
 			+ this->currentVelocity.x * dt * this->dtMultiplier, 0.f);
 	}
 	if (this->mainGunSprite.getPosition().x > this->playerCenter.x + 20.f)
@@ -331,7 +349,7 @@ void Player::UpdateAccessories(const float &dt)
 	this->aura.rotate(3.f * dt * this->dtMultiplier);
 }
 
-void Player::Movement(Vector2u windowBounds, const float &dt)
+void Player::movement(Vector2u windowBounds, const float &dt)
 {
 	//Update normalized direction
 	this->normDir = normalize(this->currentVelocity, vectorLength(this->currentVelocity));
@@ -447,11 +465,10 @@ void Player::Movement(Vector2u windowBounds, const float &dt)
 	{
 		this->sprite.setPosition(this->sprite.getPosition().x, windowBounds.y - this->getGlobalBounds().height);
 		this->currentVelocity.y = 0.f;
-	}
-		
+	}	
 }
 
-void Player::Combat(const float &dt)
+void Player::combat(const float &dt)
 {
 	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[controls::SHOOT]))
 		&& this->shootTimer >= this->shootTimerMax)
@@ -463,7 +480,7 @@ void Player::Combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
@@ -472,14 +489,14 @@ void Player::Combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y - 15.f),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y - 15.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
 
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y + 15.f),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y + 15.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
@@ -488,28 +505,28 @@ void Player::Combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y - 41.f),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y - 41.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
 
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
 
 				this->bullets.add(
 					Bullet(laserTexture,
-						Vector2f(this->playerCenter.x + 50.f, this->playerCenter.y + 43.f),
+						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y + 43.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
 						20.f, 60.f, 5.f));
 			}
 
 			//Animate gun
-			this->mainGunSprite.move(-30.f, 0.f);
+			this->mainGunSprite.move(-40.f, 0.f);
 		}
 		else if (this->currentWeapon == MISSILE01)
 		{
@@ -592,7 +609,74 @@ void Player::setGunLevel(int gunLevel)
 		std::cout << "NO TEXTURE FOR THAT MAIN GUN!" << "\n";
 }
 
-void Player::Reset()
+void Player::addStatPointRandom()
+{
+	int r = rand() % 4;
+	switch (r)
+	{
+	case 0:
+		this->power++;
+		break;
+	case 1:
+		this->wiring++;
+		break;
+	case 2:
+		this->cooling++;
+		break;
+	case 3:
+		this->plating++;
+		break;
+	default:
+		break;
+	}
+
+	this->updateStats();
+}
+
+bool Player::gainExp(int exp)
+{
+	this->exp += exp;
+	return this->updateLeveling();
+}
+
+void Player::gainHP(int hp)
+{
+	this->hp += hp;
+	if (this->hp > this->hpMax)
+		this->hp = this->hpMax;
+}
+
+void Player:: upgradeHP() 
+{ 
+	this->hpAdded += 10; 
+	this->updateStats(); 
+	this->hp = this->hpMax; 
+}
+
+bool Player::playerShowStatsIsPressed()
+{
+	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[controls::STATS])))
+		return true;
+
+	return false;
+}
+
+std::string Player::getStatsAsString()const
+{
+	return
+		"Level: " + std::to_string(this->level) +
+		"\nExp: " + std::to_string(this->exp) + "/" + std::to_string(this->expNext) +
+		"\nStatpoints: " + std::to_string(this->statPoints) +
+		"\nHP: " + std::to_string(this->hp) + "/" + std::to_string(this->hpMax) + " ( +" + std::to_string(this->hpAdded) + ") "
+		"\nDamage: " + std::to_string(this->damage) + "/" + std::to_string(this->damageMax) +
+		"\n\nScore: " + std::to_string(this->score) +
+		"\n\nPower: " + std::to_string(this->power) +
+		"\nPlating: " + std::to_string(this->plating) +
+		"\nWiring: " + std::to_string(this->wiring) +
+		"\nCooling: " + std::to_string(this->cooling);
+}
+
+void Player::reset()
 {
 	this->hpMax = 10;
 	this->hp = this->hpMax;
@@ -616,9 +700,10 @@ void Player::Reset()
 	this->statPoints = 0;
 	this->shootTimer = this->shootTimerMax;
 	this->damageTimer = this->damageTimerMax;
+	this->score = 0;
 }
 
-void Player::Update(Vector2u windowBounds, const float &dt)
+void Player::update(Vector2u windowBounds, const float &dt)
 {
 	//Update timers
 	if (this->shootTimer < this->shootTimerMax)
@@ -627,13 +712,13 @@ void Player::Update(Vector2u windowBounds, const float &dt)
 	if (this->damageTimer < this->damageTimerMax)
 		this->damageTimer += 1.f * dt * this->dtMultiplier;
 
-	this->Movement(windowBounds, dt);
-	this->ChangeAccessories(dt);
-	this->UpdateAccessories(dt);
-	this->Combat(dt);
+	this->movement(windowBounds, dt);
+	this->changeAccessories(dt);
+	this->updateAccessories(dt);
+	this->combat(dt);
 }
 
-void Player::Draw(RenderTarget &target)
+void Player::draw(RenderTarget &target)
 {
 	target.draw(this->aura);
 

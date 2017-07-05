@@ -1,19 +1,33 @@
-﻿  Game.cpp
-h:\wingman\wingman\game.cpp(209): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(219): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(201): warning C4996: 'sf::Text::setColor': was declared deprecated
+﻿  Player.cpp
+h:\wingman\wingman\player.cpp(260): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\player.cpp(272): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\player.cpp(284): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\player.cpp(296): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\player.cpp(606): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\darr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\darr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  h:\wingman\wingman\player.cpp(69): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  h:\wingman\wingman\player.cpp(55): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
+h:\wingman\wingman\darr.h(135): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\darr.h(134): note: while compiling class template member function 'void dArr<Bullet>::remove(int)'
+  h:\wingman\wingman\player.cpp(599): note: see reference to function template instantiation 'void dArr<Bullet>::remove(int)' being compiled
+  Game.cpp
+h:\wingman\wingman\game.cpp(255): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+h:\wingman\wingman\game.cpp(265): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+h:\wingman\wingman\game.cpp(247): warning C4996: 'sf::Text::setColor': was declared deprecated
   h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(206): warning C4996: 'sf::Text::setColor': was declared deprecated
+h:\wingman\wingman\game.cpp(252): warning C4996: 'sf::Text::setColor': was declared deprecated
   h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(238): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(388): warning C4018: '<': signed/unsigned mismatch
+h:\wingman\wingman\game.cpp(403): warning C4018: '>=': signed/unsigned mismatch
+h:\wingman\wingman\game.cpp(540): warning C4018: '<': signed/unsigned mismatch
 h:\wingman\wingman\darr.h(67): warning C4018: '>=': signed/unsigned mismatch
   h:\wingman\wingman\darr.h(66): note: while compiling class template member function 'Bullet &dArr<Bullet>::operator [](int)'
-  h:\wingman\wingman\game.cpp(577): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
+  h:\wingman\wingman\game.cpp(732): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
   h:\wingman\wingman\player.h(26): note: see reference to class template instantiation 'dArr<Bullet>' being compiled
 h:\wingman\wingman\darr.h(135): warning C4018: '>=': signed/unsigned mismatch
   h:\wingman\wingman\darr.h(134): note: while compiling class template member function 'void dArr<TextTag>::remove(int)'
-  h:\wingman\wingman\game.cpp(633): note: see reference to function template instantiation 'void dArr<TextTag>::remove(int)' being compiled
-h:\wingman\wingman\player.h(105): warning C4172: returning address of local variable or temporary
+  h:\wingman\wingman\game.cpp(795): note: see reference to function template instantiation 'void dArr<TextTag>::remove(int)' being compiled
+  Generating Code...
+h:\wingman\wingman\player.h(123): warning C4172: returning address of local variable or temporary
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.pdb (Full PDB)
