@@ -10,3 +10,4 @@ Textures/Accessories/wingRight09.png
 Textures/Accessories/wingRight10.png
 Textures/Accessories/wingRight11.png
 Textures/Accessories/wingRight12.png
+Textures/Accessories/wingRight13.png

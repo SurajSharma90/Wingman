@@ -297,6 +297,12 @@ void Game::initMap()
 	temp.setPosition(500.f, 500.f);
 
 	this->walls.add(RectangleShape(temp));
+	temp.setPosition(600.f, 500.f);
+	this->walls.add(RectangleShape(temp));
+	temp.setPosition(400.f, 500.f);
+	this->walls.add(RectangleShape(temp));
+	temp.setPosition(300.f, 500.f);
+	this->walls.add(RectangleShape(temp));
 }
 
 void Game::restartUpdate()
@@ -388,9 +394,9 @@ void Game::updateScore()
 
 void Game::updateDifficulty()
 {
-	if ((int)this->difficultyTimer % 1000 == 0 && this->enemySpawnTimerMax > 10)
+	if ((int)this->difficultyTimer % 1000 == 0)
 	{
-		if(this->enemySpawnTimer > 10)
+		if(this->enemySpawnTimerMax > 10)
 			this->enemySpawnTimerMax--;
 
 		this->difficulty++;

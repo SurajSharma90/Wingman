@@ -13,3 +13,4 @@ Textures/Accessories/cpit12.png
 Textures/Accessories/cpit13.png
 Textures/Accessories/cpit14.png
 Textures/Accessories/cpit15.png
+Textures/Accessories/cpit16.png
