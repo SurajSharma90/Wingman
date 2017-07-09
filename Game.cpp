@@ -34,16 +34,9 @@ Game::Game(RenderWindow *window)
 	this->initMap();
 
 	//Init players
-	this->players.add(Player(this->textures,
-		this->playerMainGunTextures,
-		this->lWingTextures, this->rWingTextures, 
-		this->cPitTextures, this->auraTextures));
+	this->players.add(Player());
 
-	this->players.add(Player(this->textures,
-		this->playerMainGunTextures,
-		this->lWingTextures, this->rWingTextures,
-		this->cPitTextures, this->auraTextures,
-		Keyboard::Numpad8, 
+	this->players.add(Player(
 		Keyboard::Numpad5, 
 		Keyboard::Numpad4, 
 		Keyboard::Numpad6, 
@@ -106,26 +99,94 @@ void Game::pauseGame()
 	}
 }
 
-void Game::initTextures()
+void Game::initPlayerTextures()
 {
-	//Init textures regular
-	this->textures.push_back(Texture());
-	this->textures[player].loadFromFile("Textures/ship.png");
-	this->textures.push_back(Texture());
-	this->textures[laser01].loadFromFile("Textures/Guns/rayTex01.png");
-	this->textures.push_back(Texture());
-	this->textures[missile01].loadFromFile("Textures/Guns/missileTex01.png");
-	this->textures.push_back(Texture());
-	
 	Texture temp;
+
+	//Init textures regular
+	temp.loadFromFile("Textures/ship.png");
+	Player::playerBodyTextures.add(temp);
+
+	//Bullets
+	temp.loadFromFile("Textures/Guns/rayTex01.png");
+	Player::playerBulletTextures.add(temp);
+	temp.loadFromFile("Textures/Guns/missileTex01.png");
+	Player::playerBulletTextures.add(temp);
 
 	//Player guns
 	temp.loadFromFile("Textures/Guns/gun01.png");
-	this->playerMainGunTextures.add(Texture(temp));
+	Player::playerMainGunTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Guns/gun02.png");
-	this->playerMainGunTextures.add(Texture(temp));
+	Player::playerMainGunTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Guns/gun03.png");
-	this->playerMainGunTextures.add(Texture(temp));
+	Player::playerMainGunTextures.add(Texture(temp));
+
+	//Init accessory textures
+	std::ifstream in;
+
+	in.open("Textures/Accessories/leftwings.txt");
+	std::string fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::lWingTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/rightwings.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::rWingTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/cockpits.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::cPitTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/auras.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::auraTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+}
+
+void Game::initTextures()
+{
+	Texture temp;
+
+	//Player
+	this->initPlayerTextures();
 
 	//Pickup textures
 	temp.loadFromFile("Textures/Pickups/hpSupply.png");
@@ -172,69 +233,6 @@ void Game::initTextures()
 	temp.loadFromFile("Textures/Bosses/Bullets/BossBullet01.png");
 	this->bossBulletTextures.add(Texture(temp));
 
-
-	//Init accessory textures
-	std::ifstream in;
-
-	in.open("Textures/Accessories/leftwings.txt");
-	std::string fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			Texture temp;
-			temp.loadFromFile(fileName);
-			this->lWingTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/rightwings.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			Texture temp;
-			temp.loadFromFile(fileName);
-			this->rWingTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/cockpits.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			Texture temp;
-			temp.loadFromFile(fileName);
-			this->cPitTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/auras.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			Texture temp;
-			temp.loadFromFile(fileName);
-			this->auraTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
 }
 
 void Game::initUI()

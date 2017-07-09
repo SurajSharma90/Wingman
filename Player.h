@@ -2,17 +2,23 @@
 
 #include"Bullet.h"
 
+enum controls { UP = 0, DOWN, LEFT, RIGHT, SHOOT, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA };
+enum weapons { LASER = 0, MISSILE01, MISSILE02 };
+
 class Player
 {
 private:
+	//CORE
 	float dtMultiplier;
 	float keyTimeMax;
 	float keyTime;
 
 	unsigned playerNr;
 
+	//Positions
 	Vector2f playerCenter;
 
+	//Timers
 	float shootTimer;
 	float shootTimerMax;
 	float damageTimer;
@@ -24,15 +30,7 @@ private:
 	//Accessories
 	Sprite mainGunSprite;
 	dArr<Bullet> bullets;
-	dArr<Texture> *mainGunTextures;
-	Texture *laserTexture;
-	Texture *missile01Texture;
-	Texture *missile02Texture;
 
-	dArr<Texture>* lWingTextures;
-	dArr<Texture>* rWingTextures;
-	dArr<Texture>* cPitTextures;
-	dArr<Texture>* auraTextures;
 	Sprite lWing;
 	Sprite rWing;
 	Sprite cPit;
@@ -81,12 +79,7 @@ private:
 	bool dualMissiles02;
 
 public:
-	Player(std::vector<Texture> &textures,
-		dArr<Texture> &mainGunTextures,
-		dArr<Texture> &lWingTextures,
-		dArr<Texture> &rWingTextures, 
-		dArr<Texture> &cPitTextures,
-		dArr<Texture> &auraTextures,
+	Player(
 		int UP = Keyboard::W, 
 		int DOWN = Keyboard::S,
 		int LEFT = Keyboard::A, 
@@ -96,7 +89,8 @@ public:
 		int CHANGE_LWING = Keyboard::Num1,
 		int CHANGE_CPIT = Keyboard::Num2,
 		int CHANGE_RWING = Keyboard::Num3,
-		int CHANGE_AURA = Keyboard::Num4);
+		int CHANGE_AURA = Keyboard::Num4
+	);
 	virtual ~Player();
 
 	//Accessors
@@ -109,6 +103,8 @@ public:
 	inline void move(float x, float y) { this->sprite.move(x, y); this->mainGunSprite.move(x, y); }
 	inline const Vector2f& getNormDir()const { return this->normDir; }
 	inline FloatRect getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
+	inline void setPos(float x, float y) {
+		this->sprite.setPosition(Vector2f(x, y)); this->mainGunSprite.setPosition(Vector2f(x, y)); }
 
 	inline const String getHpAsString()const { return std::to_string(this->hp) + "/" + std::to_string(this->hpMax); }
 	inline const int& getHp()const { return this->hp; }
@@ -158,6 +154,15 @@ public:
 
 	//Statics
 	static unsigned players;
+
+	//Static Textures
+	static dArr<Texture> playerBodyTextures;
+	static dArr<Texture> playerBulletTextures;
+	static dArr<Texture> playerMainGunTextures;
+	static dArr<Texture> lWingTextures;
+	static dArr<Texture> rWingTextures;
+	static dArr<Texture> cPitTextures;
+	static dArr<Texture> auraTextures;
 
 	//Regular functions
 	float vectorLength(Vector2f v)

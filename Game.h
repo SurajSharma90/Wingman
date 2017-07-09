@@ -73,7 +73,8 @@ private:
 	dArr<Upgrade> upgrades;
 
 	//Player Textures
-	std::vector<Texture> textures;
+	dArr<Texture> playerBodyTextures;
+	dArr<Texture> playerBulletTextures;
 	dArr<Texture> playerMainGunTextures;
 	dArr<Texture> lWingTextures;
 	dArr<Texture> rWingTextures;
@@ -108,6 +109,7 @@ public:
 	void toggleFullscreen();
 	void pauseGame();
 
+	void initPlayerTextures();
 	void initTextures();
 	void initUI();
 	void initMap();
