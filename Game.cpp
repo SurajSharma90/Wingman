@@ -1,7 +1,5 @@
 #include "Game.h"
 
-enum texture { player = 0, laser01, missile01 };
-
 Game::Game(RenderWindow *window)
 {
 	this->window = window;
@@ -24,40 +22,7 @@ Game::Game(RenderWindow *window)
 	this->keyTimeMax = 10.f;
 	this->keyTime = this->keyTimeMax;
 
-	//Init fonts
-	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
-
-	//INit textures
-	this->initTextures();
-
-	//Init map
-	this->initMap();
-
-	//Init players
-	this->players.add(Player());
-
-	this->players.add(Player(
-		Keyboard::Numpad5, 
-		Keyboard::Numpad4, 
-		Keyboard::Numpad6, 
-		Keyboard::RControl, 
-		Keyboard::Numpad7,
-		Keyboard::Numpad1,
-		Keyboard::Numpad2,
-		Keyboard::Numpad3,
-		Keyboard::Numpad0));
-	
-	this->playersAlive = this->players.size();
-
-	//Init enemies
-
-	this->enemySpawnTimerMax = 35.f; //ALSO IN RESET!
-	this->enemySpawnTimer = this->enemySpawnTimerMax;
-
-	//Init bosses
-	this->bossEncounter = false;
-
-	this->initUI();
+	this->initialize();
 }
 
 Game::~Game()
@@ -99,6 +64,15 @@ void Game::pauseGame()
 	}
 }
 
+void Game::initView()
+{
+	this->mainView.setSize(Vector2f(this->window->getSize()));
+	this->mainView.setCenter(Vector2f(
+		this->window->getSize().x / 2,
+		this->window->getSize().y / 2
+	));
+}
+
 void Game::initPlayerTextures()
 {
 	Texture temp;
@@ -120,6 +94,10 @@ void Game::initPlayerTextures()
 	Player::playerMainGunTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Guns/gun03.png");
 	Player::playerMainGunTextures.add(Texture(temp));
+
+	//Player shields
+	temp.loadFromFile("Textures/Player/shield.png");
+	Player::playerShieldTextures.add(Texture(temp));
 
 	//Init accessory textures
 	std::ifstream in;
@@ -181,9 +159,17 @@ void Game::initPlayerTextures()
 	in.close();
 }
 
+void Game::initMapTextures()
+{
+	Tile::tileTextures.loadFromFile("Textures/Map/textureSheet.png");
+}
+
 void Game::initTextures()
 {
 	Texture temp;
+
+	//Map
+	this->initMapTextures();
 
 	//Player
 	this->initPlayerTextures();
@@ -199,19 +185,25 @@ void Game::initTextures()
 
 	//Upgrades
 	temp.loadFromFile("Textures/Upgrades/statpoint.png");
-	this->upgradeTextures.add(Texture(temp));
+	Upgrade::upgradeTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Upgrades/healthtank.png");
-	this->upgradeTextures.add(Texture(temp));
+	Upgrade::upgradeTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Upgrades/doubleray.png");
-	this->upgradeTextures.add(Texture(temp));
+	Upgrade::upgradeTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Upgrades/tripleray.png");
-	this->upgradeTextures.add(Texture(temp));
+	Upgrade::upgradeTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Upgrades/piercingshot.png");
-	this->upgradeTextures.add(Texture(temp));
+	Upgrade::upgradeTextures.add(Texture(temp));
 	temp.loadFromFile("Textures/Upgrades/shield.png");
-	this->upgradeTextures.add(Texture(temp));
-	this->nrOfUpgrades = this->upgradeTextures.size();
-	
+	Upgrade::upgradeTextures.add(Texture(temp));
+	Upgrade::nrOfUpgrades = Upgrade::upgradeTextures.size();
+
+	//Powerup
+	temp.loadFromFile("Textures/Powerups/powerupRF.png");
+	Powerup::powerupTextures.add(Texture(temp));
+	temp.loadFromFile("Textures/Powerups/powerupXP.png");
+	Powerup::powerupTextures.add(Texture(temp));
+
 	//Enemies
 	temp.loadFromFile("Textures/enemyMoveLeft.png");
 	this->enemyTextures.add(Texture(temp));
@@ -233,6 +225,9 @@ void Game::initTextures()
 	temp.loadFromFile("Textures/Bosses/Bullets/BossBullet01.png");
 	this->bossBulletTextures.add(Texture(temp));
 
+	//Particles
+	temp.loadFromFile("Textures/Particles/particle01.png");
+	Particle::particleTextures.add(temp);
 }
 
 void Game::initUI()
@@ -249,9 +244,17 @@ void Game::initUI()
 	this->staticPlayerText.setCharacterSize(14);
 	this->staticPlayerText.setColor(Color::White);
 	
+	//bars init
 	this->playerExpBar.setSize(Vector2f(90.f, 10.f));
 	this->playerExpBar.setFillColor(Color(0.f, 90.f, 200.f, 200.f));
 
+	this->playerShieldBar.setSize(Vector2f(90.f, 10.f));
+	this->playerShieldBar.setFillColor(Color(200.f, 0.f, 100.f, 200.f));
+
+	this->playerPowerupBar.setSize(Vector2f(90.f, 10.f));
+	this->playerPowerupBar.setFillColor(Color(0.f, 100.f, 100.f, 200.f));
+
+	//Enemy text init 
 	this->enemyText.setFont(this->font);
 	this->enemyText.setCharacterSize(14);
 	this->enemyText.setFillColor(Color::White);
@@ -270,9 +273,9 @@ void Game::initUI()
 
 	this->controlsText.setFont(this->font);
 	this->gameOverText.setFillColor(Color::White);
-	this->controlsText.setCharacterSize(32);
+	this->controlsText.setCharacterSize(26);
 	this->controlsText.setString(
-		"A: LEFT\nD: RIGHT\nW: UP\nS: DOWN\nSPACE: SHOOT\nP: PAUSE/CONTROLS (START GAME)\nESC: QUIT\n1,2,3 & 4: CUSTOMIZE SHIP (CAN DO WHILE PAUSED!)\nF11: FULLSCREEN\n\nTOP-LEFT SHIP: Player number\nTOP-RIGHT SHIP: Hp/HpMax\nBOTTOM-LEFT SHIP: Level\nBOTTOM-RIGHT SHIP: Exp-bar\n\nWARNING, SCORE-TIMER DOES NOT STOP WHEN PAUSED!"
+		"A: LEFT\nD: RIGHT\nW: UP\nS: DOWN\nSPACE: SHOOT\nRALT: SHIELD\nTAB: Stats window\nP: PAUSE/CONTROLS (START GAME)\nESC: QUIT\n1,2,3 & 4: CUSTOMIZE SHIP (CAN DO WHILE PAUSED!)\nF11: FULLSCREEN\n\nTOP-LEFT SHIP: Player number\nTOP-RIGHT SHIP: Hp/HpMax\nBOTTOM-LEFT SHIP: Level\nBOTTOM-RIGHT SHIP: Exp-bar\nBOTTOM-RIGHT SHIP: Shield-bar\n\nWARNING, SCORE-TIMER DOES NOT STOP WHEN PAUSED!"
 	);
 	this->controlsText.setPosition(50.f, 400.f);
 
@@ -289,18 +292,55 @@ void Game::initUI()
 
 void Game::initMap()
 {
-	RectangleShape temp;
-	temp.setSize(Vector2f(100.f, 100.f));
-	temp.setFillColor(Color::White);
-	temp.setPosition(500.f, 500.f);
 
-	this->walls.add(RectangleShape(temp));
-	temp.setPosition(600.f, 500.f);
-	this->walls.add(RectangleShape(temp));
-	temp.setPosition(400.f, 500.f);
-	this->walls.add(RectangleShape(temp));
-	temp.setPosition(300.f, 500.f);
-	this->walls.add(RectangleShape(temp));
+}
+
+void Game::initialize()
+{
+	//Init view
+	this->initView();
+
+	//Init fonts
+	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
+
+	//INit textures
+	this->initTextures();
+
+	//Init map
+	this->initMap();
+
+	//Init players
+	this->players.add(Player());
+
+	this->players.add(Player(
+		Keyboard::Numpad8,
+		Keyboard::Numpad5,
+		Keyboard::Numpad4,
+		Keyboard::Numpad6,
+		Keyboard::RControl,
+		Keyboard::RShift,
+		Keyboard::Numpad7,
+		Keyboard::Numpad1,
+		Keyboard::Numpad2,
+		Keyboard::Numpad3,
+		Keyboard::Numpad0));
+
+	this->playersAlive = this->players.size();
+
+	//Init enemies
+
+	this->enemySpawnTimerMax = 35.f; //ALSO IN RESET!
+	this->enemySpawnTimer = this->enemySpawnTimerMax;
+
+	//Init bosses
+	this->bossEncounter = false;
+
+	this->initUI();
+}
+
+void Game::updateView()
+{
+	//this->mainView.setCenter(this->players[0].getPosition());
 }
 
 void Game::restartUpdate()
@@ -429,8 +469,45 @@ void Game::updateUIPlayer(int index)
 		);
 
 		this->playerExpBar.setScale(
-			(static_cast<float>(this->players[index].getExp())/this->players[index].getExpNext()),
+			(static_cast<float>(this->players[index].getExp()) / this->players[index].getExpNext()),
 			1.f
+		);
+
+		this->playerShieldBar.setPosition(
+			this->players[index].getPosition().x + 10.f,
+			this->players[index].getPosition().y + 135.f
+		);
+
+		if (this->players[index].getShieldRechargeTimer() < this->players[index].getShieldRechargeTimerMax())
+		{
+			this->playerShieldBar.setScale(
+				(static_cast<float>(this->players[index].getShieldRechargeTimer()) / this->players[index].getShieldRechargeTimerMax()),
+				1.f
+			);
+
+			if(static_cast<int>(this->players[index].getShieldRechargeTimer()) % 5 == 0)
+				this->playerShieldBar.setFillColor(Color::Red);
+			else
+				this->playerShieldBar.setFillColor(Color(200.f, 200.f, 200.f, 200.f));
+		}
+		else
+		{		
+			this->playerShieldBar.setScale(
+				(static_cast<float>(this->players[index].getShieldTimer()) / this->players[index].getShieldTimerMax()),
+				1.f
+			);
+
+			this->playerShieldBar.setFillColor(Color(200.f, 0.f, 100.f, 200.f));
+		}
+
+		this->playerPowerupBar.setScale(
+			(static_cast<float>(this->players[index].getPowerupTimer()) / this->players[index].getPowerupTimerMax()),
+			1.f
+		);
+
+		this->playerPowerupBar.setPosition(
+			this->players[index].getPosition().x + 10.f,
+			this->players[index].getPosition().y + 155.f
 		);
 
 		//STATS BOX WITH TEXT
@@ -487,25 +564,6 @@ void Game::playerUpdate(const float &dt)
 			//UPDATE PLAYERS
 			this->players[i].update(this->window->getSize(), dt);
 
-			//Upgrades update
-
-			//Wall collision update
-			for (size_t k = 0; k < this->walls.size(); k++)
-			{
-				if (this->players[i].getGlobalBounds().intersects(this->walls[k].getGlobalBounds()))
-				{
-					while (this->players[i].getGlobalBounds().intersects(this->walls[k].getGlobalBounds()))
-					{
-						this->players[i].move(
-							20.f * -1.f * this->players[i].getNormDir().x,
-							20.f * -1.f * this->players[i].getNormDir().y
-						);
-					}
-
-					this->players[i].resetVelocity();
-				}
-			}
-
 			//Bullets update
 			this->playerBulletUpdate(dt, i);
 
@@ -541,33 +599,38 @@ void Game::playerUpdate(const float &dt)
 
 void Game::playerBulletUpdate(const float &dt, const int i)
 {
-	for (size_t k = 0; k < this->players[i].getBulletsSize(); k++)
+	bool enemyRemoved = false;
+	bool bulletRemoved = false;
+
+	for (size_t k = 0; k < this->players[i].getBulletsSize() && !bulletRemoved; k++)
 	{
 		this->players[i].getBullet(k).Update(dt);
 
 		//Enemy collision check
-		for (size_t j = 0; j < this->enemies.size(); j++)
+		for (size_t j = 0; j < this->enemies.size() && !enemyRemoved; j++)
 		{
 			if (this->players[i].getBullet(k).getGlobalBounds().intersects(this->enemies[j].getGlobalBounds()))
 			{
-				//Piercning shot check/Remove bullet
-				if (!this->players[i].getPiercingShot())
-				{
-					this->players[i].removeBullet(k);
-				}
-				else
-				{
-					this->players[i].getBullet(k).setPosition(
-						Vector2f(this->enemies[j].getPosition().x + this->enemies[j].getGlobalBounds().width + this->players[i].getBullet(k).getGlobalBounds().width / 2 + 1.f,
-							this->players[i].getBullet(k).getPosition().y)
-					);
-				}
-
 				//Enemy take damage
-				int damage = this->players[i].getDamage();
+				int damage = this->players[i].getBullet(k).getDamage();
 				if (this->enemies[j].getHP() > 0)
 				{
 					this->enemies[j].takeDamage(damage);
+
+					//Add particles on damage
+					int nrOfPart = rand() % 5 + 2;
+					for (size_t l = 0; l < nrOfPart; l++)
+					{
+						this->particles.add(Particle(
+							this->players[i].getBullet(k).getPosition(),
+							0,
+							this->players[i].getBullet(k).getVel(),
+							rand() % 30 + 10,
+							rand() % 20,
+							30.f,
+							Color(255, 255, 255, 255)
+						));
+					}
 
 					//Create text tag
 					this->textTags.add(
@@ -587,6 +650,21 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 				//Enemy dead
 				if (this->enemies[j].getHP() <= 0)
 				{
+					//Add particles on death
+					int nrOfPart = rand() % 10 + 5;
+					for (size_t l = 0; l < nrOfPart; l++)
+					{
+						this->particles.add(Particle(
+							this->players[i].getBullet(k).getPosition(),
+							0,
+							this->players[i].getBullet(k).getVel(),
+							rand() % 40 + 10,
+							rand() % 20,
+							40.f,
+							Color(255, 255, 255, 255)
+						));
+					}
+
 					//GAIN SCORE & RESET MULTIPLIER TIMER
 					this->multiplierTimer = this->multiplierTimerMax;
 					int score = this->enemies[j].getHPMax() * this->scoreMultiplier;
@@ -597,6 +675,49 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 					int exp = this->enemies[j].getHPMax()
 						+ (rand() % this->enemies[j].getHPMax() + 1)
 						* this->scoreMultiplier;
+
+					if (this->players[i].getPowerupXP())
+					{
+						exp *= 2;
+
+						//GAIN EXP TAG
+						this->textTags.add(
+							TextTag(&this->font,
+								"+" +
+								std::to_string(exp) +
+								" ( x" +
+								std::to_string(this->scoreMultiplier) +
+								" x2 Powerup! ) " +
+								" EXP",
+								Color::Cyan,
+								this->enemies[j].getPosition(),
+								Vector2f(1.f, 0.f),
+								24,
+								40.f,
+								true
+							)
+						);
+					}
+					else
+					{
+						//GAIN EXP TAG
+						this->textTags.add(
+							TextTag(&this->font,
+								"+" +
+								std::to_string(exp) +
+								" ( x" +
+								std::to_string(this->scoreMultiplier) +
+								" ) " +
+								" EXP",
+								Color::Cyan,
+								this->enemies[j].getPosition(),
+								Vector2f(1.f, 0.f),
+								24,
+								40.f,
+								true
+							)
+						);
+					}
 
 					//SCORE TEXT TAG
 					this->textTags.add(
@@ -629,49 +750,37 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 						);
 					}
 
-					//GAIN EXP TAG
-					this->textTags.add(
-						TextTag(&this->font,
-							"+" +
-							std::to_string(exp) +
-							" ( x" +
-							std::to_string(this->scoreMultiplier) +
-							" ) " +
-							" EXP",
-							Color::Cyan,
-							this->enemies[j].getPosition(),
-							Vector2f(1.f, 0.f),
-							24,
-							40.f,
-							true
-						)
-					);
-
 					//ADD UPGRADE
-					int dropChance = rand() % 100 + 1;
+					int dropChance = rand() % 3;
 					int uType = 0;
 
-					if (dropChance > 70)
+					switch (dropChance)
 					{
+					case 0:
+
 						//ADD PICKUP
 						dropChance = rand() % 100 + 1;
 
-						if (dropChance > 10)
+						if (dropChance > 50)
+						{
 							this->pickups.add(Pickup(
 								this->pickupTextures,
 								this->enemies[j].getPosition(),
 								0,
 								150.f)
 							);
-					}
-					else
-					{
+						}
+
+						break;
+
+					case 1:
+
 						//ADD UPGRADE
 						dropChance = rand() % 100 + 1;
 
-						if (dropChance > 80)
+						if (dropChance > 70)
 						{
-							uType = rand() % this->nrOfUpgrades;
+							uType = rand() % Upgrade::nrOfUpgrades;
 
 							for (size_t k = 0; k < this->players[i].getAcquiredUpgrades().size(); k++)
 							{
@@ -681,28 +790,72 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 								}
 							}
 
-							this->upgrades.add(Upgrade(
-								this->upgradeTextures,
+							this->upgrades.add(
+								Upgrade
+								(
 								this->enemies[j].getPosition(),
 								uType,
-								500.f)
+								500.f
+								)
 							);
 						}
-					}
 
-					this->enemies.remove(j);
+						break;
+
+					case 2:
+
+						//ADD Powerup
+						dropChance = rand() % 100 + 1;
+
+						if (dropChance > 70)
+						{
+							uType = rand() % Powerup::nrOfPowerups;
+
+							this->powerups.add( 
+								Powerup(
+									uType,
+									300.f,
+									this->enemies[j].getPosition()
+								)
+							);
+						}
+
+						break;
+
+					default:
+						std::cout << "ERROR NO DROP!" << "\n";
+						break;
+					}
+					
+					enemyRemoved = true;	
 				}
 
-				return;	//RETURN!!!
+				//Piercning shot check/Remove bullet
+				if (!this->players[i].getPiercingShot())
+				{
+					bulletRemoved = true;
+				}
+				else
+				{
+					this->players[i].getBullet(k).setPosition(
+						Vector2f(this->enemies[j].getPosition().x + this->enemies[j].getGlobalBounds().width + this->players[i].getBullet(k).getGlobalBounds().width / 2 + 1.f,
+							this->players[i].getBullet(k).getPosition().y)
+					);
+				}
 			}
+
+			if (enemyRemoved)
+				this->enemies.remove(j);
 		}
 
 		//Window bounds check
 		if (this->players[i].getBullet(k).getPosition().x > this->window->getSize().x)
 		{
-			this->players[i].removeBullet(k);
-			return;	//RETURN!!!
+			bulletRemoved = true;		
 		}
+
+		if(bulletRemoved)
+			this->players[i].removeBullet(k);
 	}
 }
 
@@ -726,22 +879,19 @@ void Game::enemyUpdate(const float &dt)
 	}
 
 	//Update enemies
-	for (size_t i = 0; i < this->enemies.size(); i++)
+	bool enemyRemoved = false;
+	bool playerKilled = false;
+
+	for (size_t i = 0; i < this->enemies.size() && !enemyRemoved; i++)
 	{
 		this->enemies[i].Update(dt, this->players[this->enemies[i].getPlayerFollowNr()].getPosition());
 
-		//Enemy bullet update
-		for (size_t k = 0; k < this->enemies[i].getBullets().size(); k++)
-		{
-			this->enemies[i].getBullets()[k].Update(dt);
-		}
-
 		//Enemy player collision
-		for (size_t k = 0; k < this->players.size(); k++)
+		for (size_t k = 0; k < this->players.size() && !playerKilled; k++)
 		{
 			if (this->players[k].isAlive())
 			{
-				if (this->players[k].getGlobalBounds().intersects(this->enemies[i].getGlobalBounds())
+				if (this->players[k].getBounds().intersects(this->enemies[i].getGlobalBounds())
 					&& !this->players[k].isDamageCooldown())
 				{
 					int damage = this->enemies[i].getDamage();
@@ -767,50 +917,149 @@ void Game::enemyUpdate(const float &dt)
 
 					//Player death
 					if (!this->players[k].isAlive())
-						this->playersAlive--;
-
-					return;//RETURN!!!
+						playerKilled = true;
 				}
 			}
+
+			if (playerKilled)
+				this->playersAlive--;
 		}
 
 		//Enemies out of bounds
 		if (this->enemies[i].getPosition().x < 0 - this->enemies[i].getGlobalBounds().width)
 		{
-			this->enemies.remove(i);
-			return;	//RETURN!!!
+			enemyRemoved = true;
 		}
+
+		if (enemyRemoved)
+			this->enemies.remove(i);
 	}
+
+	this->enemyBulletUpdate(dt);
 }
 
 void Game::enemyBulletUpdate(const float &dt)
 {
+	//Enemy bullet update
+	bool bulletRemoved = false;
+	bool playerKilled = false;
+	for (size_t i = 0; i < Enemy::enemyBullets.size() && !bulletRemoved; i++)
+	{
+		Enemy::enemyBullets[i].Update(dt);
 
+		//Player collision check
+		for (size_t k = 0; k < this->players.size() && !playerKilled; k++)
+		{
+			if (Enemy::enemyBullets[i].getGlobalBounds().intersects(this->players[k].getBounds())
+				&& this->players[k].isAlive())
+			{
+				int damage = Enemy::enemyBullets[i].getDamage();
+
+				//PLAYER TAKES BULLET DAMAGE
+				if (!this->players[k].isShielding())
+				{
+					this->players[k].takeDamage(damage);
+
+					//PLAYER TAKE DAMAGE TAG
+					this->textTags.add(
+						TextTag(&this->font,
+							"-" + std::to_string(damage),
+							Color::Red,
+							Vector2f(this->players[k].getPosition().x + 20.f,
+								this->players[k].getPosition().y - 20.f),
+							Vector2f(-1.f, 0.f),
+							30,
+							30.f,
+							true
+						)
+					);
+
+					//Player death
+					if (!this->players[k].isAlive())
+						playerKilled = true;
+				}
+				else
+				{
+					//Add particles on shielding
+					int nrOfPart = rand() % 5 + 2;
+					for (size_t l = 0; l < nrOfPart; l++)
+					{
+						this->particles.add(Particle(
+							Enemy::enemyBullets[i].getPosition(),
+							0,
+							Enemy::enemyBullets[i].getVel(),
+							rand() % 20 + 5,
+							rand() % 20,
+							30.f,
+							Color(0, 50, 255, 255)
+						));
+					}
+
+					//PLAYER SHIELDED TAG
+					this->textTags.add(
+						TextTag(&this->font,
+							"-" + std::to_string(0),
+							Color::Cyan,
+							Vector2f(this->players[k].getPosition().x + 20.f,
+								this->players[k].getPosition().y - 20.f),
+							Vector2f(-1.f, 0.f),
+							30,
+							30.f,
+							true
+						)
+					);
+				}
+
+				bulletRemoved = true;
+			}
+
+			if (playerKilled)
+				this->playersAlive--;
+		}
+
+		//Window bounds check
+		if (!bulletRemoved
+			&& (Enemy::enemyBullets[i].getPosition().x > this->window->getSize().x
+				|| Enemy::enemyBullets[i].getPosition().x < 0
+				|| Enemy::enemyBullets[i].getPosition().y > this->window->getSize().y
+				|| Enemy::enemyBullets[i].getPosition().y < 0
+				))
+		{
+			bulletRemoved = true;
+		}
+
+		if (bulletRemoved)
+			Enemy::enemyBullets.remove(i);
+	}
 }
 
 void Game::textTagsUpdate(const float &dt)
 {
-	for (size_t i = 0; i < this->textTags.size(); i++)
+	bool textTagRemoved = false;
+	for (size_t i = 0; i < this->textTags.size() && !textTagRemoved; i++)
 	{
 		this->textTags[i].Update(dt);
 
 		if (this->textTags[i].getTimer() <= 0.f)
 		{
-			this->textTags.remove(i);
-			break;
+			textTagRemoved = true;
 		}
+
+		if (textTagRemoved)
+			this->textTags.remove(i);
 	}
 }
 
 void Game::pickupsUpdate(const float &dt)
 {
-	for (size_t i = 0; i < this->pickups.size(); i++)
+	bool pickupRemoved = false;
+	for (size_t i = 0; i < this->pickups.size() && !pickupRemoved; i++)
 	{
 		this->pickups[i].Update(dt);
 
 		for (size_t k = 0; k < this->players.size(); k++)
 		{
-			if (this->pickups[i].checkCollision(this->players[k].getGlobalBounds()))
+			if (this->players[k].isAlive() && this->pickups[i].checkCollision(this->players[k].getBounds()))
 			{
 				int gainHp = this->players[k].getHpMax() / 5;
 
@@ -884,30 +1133,43 @@ void Game::pickupsUpdate(const float &dt)
 					break;
 				}
 
-				this->pickups.remove(i);
-				return;
+				pickupRemoved = true;
 			}
 		}
 		if (this->pickups[i].canDelete())
 		{
-			this->pickups.remove(i);
-			break;
+			pickupRemoved = true;
 		}
+
+		if (pickupRemoved)
+			this->pickups.remove(i);
 	}
 }
 
 void Game::upgradesUpdate(const float &dt)
 {
-	for (size_t i = 0; i < this->upgrades.size(); i++)
+	bool upgradeRemoved = false;
+	bool hasUpgrade = false;
+
+	for (size_t i = 0; i < this->upgrades.size() && !upgradeRemoved; i++)
 	{
 		this->upgrades[i].Update(dt);
 
 		for (size_t k = 0; k < this->players.size(); k++)
 		{
-			if (this->upgrades[i].checkCollision(this->players[k].getGlobalBounds()))
+			if (this->players[k].isAlive() && this->upgrades[i].checkCollision(this->players[k].getBounds()))
 			{
 				if (this->upgrades[i].getType() != 0 && this->upgrades[i].getType() != 1)
-					this->players[k].getAcquiredUpgrades().add(this->upgrades[i].getType());
+				{
+					for (size_t j = 0; j < this->players[k].getAcquiredUpgrades().size() && !hasUpgrade; j++)
+					{
+						if (this->upgrades[i].getType() == this->players[k].getAcquiredUpgrades()[j])
+							hasUpgrade = true;
+					}
+
+					if(!hasUpgrade)
+						this->players[k].getAcquiredUpgrades().add(this->upgrades[i].getType());
+				}
 
 				switch (this->upgrades[i].getType())
 				{
@@ -1027,16 +1289,76 @@ void Game::upgradesUpdate(const float &dt)
 					break;
 				}
 
-				this->upgrades.remove(i);
-				return;
+				upgradeRemoved = true;
 			}
 		}
 
 		if (this->upgrades[i].canDelete())
 		{
-			this->upgrades.remove(i);
-			break;
+			upgradeRemoved = true;
 		}
+
+		if (upgradeRemoved)
+			this->upgrades.remove(i);
+	}
+}
+
+void Game::powerupsUpdate(const float &dt)
+{
+	bool powerupRemoved = false;
+	for (size_t i = 0; i < this->powerups.size(); i++)
+	{
+		this->powerups[i].update(dt);
+
+		for (size_t k = 0; k < this->players.size(); k++)
+		{
+			if (this->players[k].isAlive() && this->powerups[i].collide(this->players[k].getBounds()))
+			{
+				switch (this->powerups[i].getType())
+				{
+				case 0: //RF
+					this->players[k].enablePowerupRF();
+
+					break;
+
+				case 1: //XP
+					this->players[k].enablePowerupXP();
+
+					break;
+
+				default:
+					break;
+				}
+
+				powerupRemoved = true;
+			}
+		}
+		
+		if (this->powerups[i].canRemove())
+			powerupRemoved = true;
+
+		if (powerupRemoved)
+			this->powerups.remove(i);
+	}
+}
+
+void Game::mapUpdate()
+{
+
+}
+
+void Game::particlesUpdate(const float &dt)
+{
+	bool particleRemoved = false;
+	for (size_t i = 0; i < this->particles.size() && !particleRemoved; i++)
+	{
+		this->particles[i].update(dt);
+
+		if (this->particles[i].readyToDel())
+			particleRemoved = true;
+
+		if(particleRemoved)
+			this->particles.remove(i);
 	}
 }
 
@@ -1047,6 +1369,9 @@ void Game::update(const float &dt)
 
 	//Fullscreen
 	this->toggleFullscreen();
+
+	//View
+	this->updateView();
 
 	//PAUSE GAME
 	this->pauseGame();
@@ -1080,6 +1405,12 @@ void Game::update(const float &dt)
 
 		//Pickups update
 		this->pickupsUpdate(dt);
+
+		//Powerups update
+		this->powerupsUpdate(dt);
+
+		//Particles
+		this->particlesUpdate(dt);
 	}
 	else if(this->playersAlive <= 0 && this->scoreTime == 0)
 	{
@@ -1115,23 +1446,22 @@ void Game::drawUI()
 		this->window->draw(this->controlsText);
 }
 
-void Game::draw()
+void Game::drawPlayers()
 {
-	this->window->clear();
-
-	//Draw player
 	for (size_t i = 0; i < this->players.size(); i++)
 	{
 		if (this->players[i].isAlive())
-		{			
+		{
 			this->players[i].draw(*this->window);
 
 			//UI
 			this->updateUIPlayer(i);
-			
+
 			this->window->draw(this->followPlayerText);
 			this->window->draw(this->playerExpBar);
-			
+			this->window->draw(this->playerShieldBar);
+			this->window->draw(this->playerPowerupBar);
+
 			if (this->players[i].playerShowStatsIsPressed())
 			{
 				this->window->draw(this->playerStatsTextBack);
@@ -1139,8 +1469,10 @@ void Game::draw()
 			}
 		}
 	}
+}
 
-	//Draw enemies
+void Game::drawEnemies()
+{
 	for (size_t i = 0; i < this->enemies.size(); i++)
 	{
 		this->enemies[i].Draw(*this->window);
@@ -1150,25 +1482,89 @@ void Game::draw()
 		this->window->draw(this->enemyText);
 	}
 
-	//MAP
-	for (size_t i = 0; i < this->walls.size(); i++)
+	//enemy bullets
+	for (size_t i = 0; i < Enemy::enemyBullets.size(); i++)
 	{
-		this->window->draw(this->walls[i]);
+		Enemy::enemyBullets[i].Draw(*this->window);
 	}
+}
 
-	//Draw pickups
+void Game::drawMap()
+{
+	stage.draw(
+		*this->window, 
+		this->mainView
+	);
+}
+
+void Game::drawPickups()
+{
 	for (size_t i = 0; i < this->pickups.size(); i++)
 	{
 		this->pickups[i].Draw(*this->window);
 	}
+}
 
-	//Draw Upgrades
+void Game::drawUpgrades()
+{
 	for (size_t i = 0; i < this->upgrades.size(); i++)
 	{
 		this->upgrades[i].Draw(*this->window);
 	}
+}
+
+void Game::drawPowerups()
+{
+	for (size_t i = 0; i < this->powerups.size(); i++)
+	{
+		this->powerups[i].draw(*this->window);
+	}
+}
+
+void Game::drawParticles()
+{
+	for (size_t i = 0; i < this->particles.size(); i++)
+	{
+		this->particles[i].draw(*this->window);
+	}
+}
+
+void Game::draw()
+{
+	//CLEAR AND BEGIN DRAW
+	this->window->clear();
+
+	//Set view
+	this->window->setView(this->mainView);
+
+	//Draw map
+	this->drawMap();
+
+	//Draw players
+	this->drawPlayers();
+
+	//Draw enemies
+	this->drawEnemies();
+
+	//Draw pickups
+	this->drawPickups();
+
+	//Draw Upgrades
+	this->drawUpgrades();
+
+	//Draw Powerups
+	this->drawPowerups();
+
+	//Draw Particles
+	this->drawParticles();
+
+	//Draw UI
+
+	//Set view
+	this->window->setView(this->window->getDefaultView());
 
 	this->drawUI();
 
+	//FINISH DRAW
 	this->window->display();
 }

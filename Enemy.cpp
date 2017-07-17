@@ -1,5 +1,7 @@
 #include "Enemy.h"
 
+dArr<Bullet> Enemy::enemyBullets;
+
 enum eTypes { MOVELEFT = 0, FOLLOW, MOVELEFTSHOOT, FOLLOWFAST, FOLLOWSHOOT, FOLLOWFASTSHOOT };
 enum bulletTypes { REGULAR = 0, MISSILE };
 
@@ -43,7 +45,7 @@ Enemy::Enemy(
 	switch (this->type)
 	{
 	case MOVELEFT:
-		this->sprite.setScale(Vector2f(0.15f, 0.15f));
+		this->sprite.setScale(Vector2f(0.11f, 0.11f));
 		this->hpMax = (rand()% 5 + 1) * scalar;
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 3 + 1) * scalar;
@@ -52,7 +54,7 @@ Enemy::Enemy(
 			break;
 
 	case FOLLOW:
-		this->sprite.setScale(Vector2f(0.1f, 0.1f));
+		this->sprite.setScale(Vector2f(0.08f, 0.08f));
 		this->hpMax = (rand() % 3 + 1) * scalar;
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
@@ -61,13 +63,13 @@ Enemy::Enemy(
 			break;
 
 	case MOVELEFTSHOOT:
-		this->sprite.setScale(Vector2f(0.12f, 0.12f));
+		this->sprite.setScale(Vector2f(0.10f, 0.10f));
 		this->hpMax = (rand() % 3 + 1) * scalar;
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
 		this->maxVelocity = 10 + 3;
-		this->shootTimerMax = 15.f;
+		this->shootTimerMax = 20.f;
 		this->shootTimer = 0.f;
 		break;
 
@@ -178,14 +180,18 @@ void Enemy::Update(const float &dt, Vector2f playerPosition)
 			//Shoot
 			if (this->shootTimer >= this->shootTimerMax)
 			{
-				this->bullets.add(
-					Bullet(&(*this->bulletTextures)[REGULAR],
+				Enemy::enemyBullets.add(
+					Bullet(
+						&(*this->bulletTextures)[REGULAR],
 						this->sprite.getPosition(),
 						Vector2f(0.2f, 0.2f),
 						this->normalizedLookDir,
-						2.f, 
+						1.f, 
 						5,
-						0.5f));
+						0.2f,
+						this->getDamage()
+					)
+				);
 
 				this->shootTimer = 0.f;
 			}
@@ -216,9 +222,4 @@ void Enemy::Update(const float &dt, Vector2f playerPosition)
 void Enemy::Draw(RenderTarget &target)
 {
 	target.draw(this->sprite);
-
-	for (size_t i = 0; i < this->bullets.size(); i++)
-	{
-		this->bullets[i].Draw(target);
-	}
 }

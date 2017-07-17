@@ -153,9 +153,14 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Powerup.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="TextTag.cpp" />
+    <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Upgrade.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,9 +169,15 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="dArr.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Powerup.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="TextTag.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="TileArr.h" />
     <ClInclude Include="Upgrade.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

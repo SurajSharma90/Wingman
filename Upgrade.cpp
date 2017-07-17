@@ -1,7 +1,9 @@
 #include "Upgrade.h"
 
+int Upgrade::nrOfUpgrades;
+dArr<Texture> Upgrade::upgradeTextures;
+
 Upgrade::Upgrade(
-	dArr<Texture> &textures,
 	Vector2f position,
 	int type,
 	float aliveTimerMax
@@ -10,13 +12,12 @@ Upgrade::Upgrade(
 	this->dtMultiplier = 62.5f;
 
 	this->aliveTimerMax = aliveTimerMax;
+	this->aliveTimer = 0;
 
 	this->type = type;
 
-	this->textures = &textures;
-	
-	if (this->type < (*this->textures).size())
-		this->sprite.setTexture((*this->textures)[this->type]);
+	if (this->type < Upgrade::upgradeTextures.size())
+		this->sprite.setTexture(Upgrade::upgradeTextures[this->type]);
 	else
 		std::cout << "NO TEXTURE FOR THAT UPGRADE TYPE!" << "\n";
 

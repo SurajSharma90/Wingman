@@ -22,11 +22,10 @@ private:
 	float aliveTimerMax;
 	float aliveTimer;
 
-	dArr<Texture> *textures;
 	Sprite sprite;
 
 public:
-	Upgrade(dArr<Texture> &textures,	
+	Upgrade(
 		Vector2f position,
 		int type,
 		float aliveTimerMax);
@@ -40,5 +39,9 @@ public:
 
 	void Update(const float &dt);
 	void Draw(RenderTarget &target);
+
+	//Static
+	static int nrOfUpgrades;
+	static dArr<Texture> upgradeTextures;
 };
 

@@ -3,6 +3,7 @@
 #include"Player.h"
 #include"Enemy.h"
 #include"Boss.h"
+#include"Map.h"
 
 class Game
 {
@@ -10,12 +11,13 @@ private:
 
 	//Game
 	RenderWindow *window;
+	View mainView;
 	float dtMultiplier;
 	bool paused;
 	float keyTimeMax;
 	float keyTime;
 	bool fullscreen;
-
+	
 	//Score
 	unsigned score;
 	unsigned scoreMultiplier;
@@ -42,6 +44,8 @@ private:
 
 	//Bars
 	RectangleShape playerExpBar;
+	RectangleShape playerShieldBar;
+	RectangleShape playerPowerupBar;
 
 	//Backgrounds
 	RectangleShape playerStatsTextBack;
@@ -50,7 +54,8 @@ private:
 	dArr<TextTag> textTags;
 
 	//MAP
-	dArr<RectangleShape> walls;
+	Map map;
+	Stage stage;
 
 	//Players
 	dArr<Player> players;
@@ -72,20 +77,15 @@ private:
 	//Upgrades
 	dArr<Upgrade> upgrades;
 
-	//Player Textures
-	dArr<Texture> playerBodyTextures;
-	dArr<Texture> playerBulletTextures;
-	dArr<Texture> playerMainGunTextures;
-	dArr<Texture> lWingTextures;
-	dArr<Texture> rWingTextures;
-	dArr<Texture> cPitTextures;
-	dArr<Texture> auraTextures;
+	//Powerups
+	dArr<Powerup> powerups;
+
+	//Particles
+	dArr<Particle> particles;
 
 	//Pickup/Upgrade textures
 	unsigned nrOfPickups;
 	dArr<Texture> pickupTextures;
-	unsigned nrOfUpgrades;
-	dArr<Texture> upgradeTextures;
 
 	//Enemy textures
 	dArr<Texture> enemyTextures;
@@ -109,10 +109,15 @@ public:
 	void toggleFullscreen();
 	void pauseGame();
 
+	void initView();
 	void initPlayerTextures();
+	void initMapTextures();
 	void initTextures();
 	void initUI();
 	void initMap();
+	void initialize();
+
+	void updateView();
 	void restartUpdate();
 	void setEndingScoreboard();
 	void updateTimers(const float &dt);
@@ -129,13 +134,19 @@ public:
 	void textTagsUpdate(const float &dt);
 	void pickupsUpdate(const float &dt);
 	void upgradesUpdate(const float &dt);
+	void powerupsUpdate(const float &dt);
+	void mapUpdate();
+	void particlesUpdate(const float &dt);
 	void update(const float &dt);
+
 	void drawUI();
-	void drawPlayer();
+	void drawPlayers();
 	void drawEnemies();
 	void drawMap();
 	void drawPickups();
 	void drawUpgrades();
+	void drawPowerups();
+	void drawParticles();
 	void draw();
 };
 

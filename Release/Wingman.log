@@ -1,23 +1,36 @@
 ﻿  Game.cpp
-Game.cpp(208): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-Game.cpp(218): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-Game.cpp(200): warning C4996: 'sf::Text::setColor': was declared deprecated
+Game.cpp(73): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+Game.cpp(249): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(252): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(255): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(266): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+Game.cpp(240): warning C4996: 'sf::Text::setColor': was declared deprecated
   H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
-Game.cpp(205): warning C4996: 'sf::Text::setColor': was declared deprecated
+Game.cpp(245): warning C4996: 'sf::Text::setColor': was declared deprecated
   H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
-Game.cpp(237): warning C4018: '>=': signed/unsigned mismatch
-Game.cpp(389): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(447): warning C4018: '>=': signed/unsigned mismatch
+Game.cpp(491): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(500): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(605): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(622): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(632): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Game.cpp(655): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(665): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Game.cpp(985): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(995): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
   h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'Bullet &dArr<Bullet>::operator [](int)'
-  Game.cpp(573): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
-  h:\wingman\wingman\Player.h(26): note: see reference to class template instantiation 'dArr<Bullet>' being compiled
+  Game.cpp(948): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
+  h:\wingman\wingman\Player.h(38): note: see reference to class template instantiation 'dArr<Bullet>' being compiled
 h:\wingman\wingman\dArr.h(135): warning C4018: '>=': signed/unsigned mismatch
-  h:\wingman\wingman\dArr.h(134): note: while compiling class template member function 'void dArr<TextTag>::remove(int)'
-  Game.cpp(628): note: see reference to function template instantiation 'void dArr<TextTag>::remove(int)' being compiled
+  h:\wingman\wingman\dArr.h(134): note: while compiling class template member function 'void dArr<Bullet>::remove(int)'
+  Game.cpp(1032): note: see reference to function template instantiation 'void dArr<Bullet>::remove(int)' being compiled
+  main.cpp
+main.cpp(5): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Generating code
-  1 of 480 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  0 of 555 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+    21 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Wingman.vcxproj -> H:\Wingman\Release\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Release\Wingman.pdb (Full PDB)

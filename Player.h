@@ -2,7 +2,7 @@
 
 #include"Bullet.h"
 
-enum controls { UP = 0, DOWN, LEFT, RIGHT, SHOOT, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA };
+enum controls { UP = 0, DOWN, LEFT, RIGHT, SHOOT, SHIELD, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA };
 enum weapons { LASER = 0, MISSILE01, MISSILE02 };
 
 class Player
@@ -23,6 +23,12 @@ private:
 	float shootTimerMax;
 	float damageTimer;
 	float damageTimerMax;
+	float shieldTimer;
+	float shieldTimerMax;
+	float shieldRechargeTimer;
+	float shieldRechargeTimerMax;
+	float powerupTimerMax;
+	float powerupTimer;
 
 	Sprite sprite;
 	RectangleShape hitBox;
@@ -30,6 +36,9 @@ private:
 	//Accessories
 	Sprite mainGunSprite;
 	dArr<Bullet> bullets;
+
+	Sprite deflectorShield;
+	bool shielding;
 
 	Sprite lWing;
 	Sprite rWing;
@@ -78,6 +87,10 @@ private:
 	bool dualMissiles01;
 	bool dualMissiles02;
 
+	//Powerups
+	bool powerupRF;
+	bool powerupXP;
+
 public:
 	Player(
 		int UP = Keyboard::W, 
@@ -85,6 +98,7 @@ public:
 		int LEFT = Keyboard::A, 
 		int RIGHT = Keyboard::D,
 		int SHOOT = Keyboard::Space,
+		int SHIELD = Keyboard::RAlt,
 		int STATS = Keyboard::Tab,
 		int CHANGE_LWING = Keyboard::Num1,
 		int CHANGE_CPIT = Keyboard::Num2,
@@ -102,9 +116,9 @@ public:
 	inline void resetVelocity() { this->currentVelocity = Vector2f(0.f, 0.f); }
 	inline void move(float x, float y) { this->sprite.move(x, y); this->mainGunSprite.move(x, y); }
 	inline const Vector2f& getNormDir()const { return this->normDir; }
-	inline FloatRect getGlobalBounds()const { return this->sprite.getGlobalBounds(); }
-	inline void setPos(float x, float y) {
-		this->sprite.setPosition(Vector2f(x, y)); this->mainGunSprite.setPosition(Vector2f(x, y)); }
+	inline FloatRect getBounds()const { return this->sprite.getGlobalBounds(); }
+	inline void setPos(float x, float y) {this->sprite.setPosition(Vector2f(x, y)); this->mainGunSprite.setPosition(Vector2f(x, y)); }
+	inline const bool intersects(FloatRect rect)const { return this->sprite.getGlobalBounds().intersects(rect); }
 
 	inline const String getHpAsString()const { return std::to_string(this->hp) + "/" + std::to_string(this->hpMax); }
 	inline const int& getHp()const { return this->hp; }
@@ -115,7 +129,8 @@ public:
 
 	int getDamage()const;
 	void takeDamage(int damage);
-	
+	inline bool isShielding()const { return this->shielding; }
+
 	inline const int& getPlayerNr()const { return this->playerNr; }
 	
 	inline const int& getLevel()const { return this->level; }
@@ -130,7 +145,11 @@ public:
 	inline void gainScore(int score) { this->score += score; }
 	inline const int getScore()const { return this->score; }
 	
-	inline bool isDamageCooldown() { return this->damageTimer < this->damageTimerMax; }
+	inline bool isDamageCooldown()const { return this->damageTimer < this->damageTimerMax; }
+	inline float getShieldTimer()const { return this->shieldTimer; }
+	inline float getShieldTimerMax()const { return this->shieldTimerMax; }
+	inline float getShieldRechargeTimer()const { return this->shieldRechargeTimer; }
+	inline float getShieldRechargeTimerMax()const { return this->shieldRechargeTimerMax; }
 
 	void setGunLevel(int gunLevel);
 	inline const int& getGunLevel()const { return this->mainGunLevel; }
@@ -141,12 +160,20 @@ public:
 	inline void enableDualMissiles02() { this->dualMissiles02 = true; }
 	inline dArr<int>& getAcquiredUpgrades() { return this->upgradesAcquired; }
 
+	inline float getPowerupTimer()const { return this->powerupTimer; }
+	inline float getPowerupTimerMax()const { return this->powerupTimerMax; }
+	inline bool getPowerupRF()const { return this->powerupRF; }
+	inline bool getPowerupXP()const { return this->powerupXP; }
+	inline void enablePowerupRF() { this->powerupRF = true; this->powerupTimer = this->powerupTimerMax; }
+	inline void enablePowerupXP() { this->powerupXP = true; this->powerupTimer = this->powerupTimerMax; }
+
 	//Functions
 	void reset();
 	bool updateLeveling();
 	void updateStats();
 	void changeAccessories(const float &dt);
 	void updateAccessories(const float &dt);
+	void updatePowerups();
 	void combat(const float &dt);
 	void movement(Vector2u windowBounds, const float &dt);
 	void update(Vector2u windowBounds, const float &dt);
@@ -159,11 +186,12 @@ public:
 	static dArr<Texture> playerBodyTextures;
 	static dArr<Texture> playerBulletTextures;
 	static dArr<Texture> playerMainGunTextures;
+	static dArr<Texture> playerShieldTextures;
 	static dArr<Texture> lWingTextures;
 	static dArr<Texture> rWingTextures;
 	static dArr<Texture> cPitTextures;
 	static dArr<Texture> auraTextures;
-
+	
 	//Regular functions
 	float vectorLength(Vector2f v)
 	{

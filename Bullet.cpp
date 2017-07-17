@@ -3,9 +3,12 @@
 Bullet::Bullet(Texture *texture, 
 	Vector2f position, Vector2f scale,
 	Vector2f direction, float initialVelocity,
-	float maxVelocity, float acceleration)
+	float maxVelocity, float acceleration,
+	int damage)
 {
 	this->dtMultiplier = 62.5f;
+
+	this->damage = damage;
 
 	this->texture = texture;
 	this->sprite.setTexture(*this->texture);
@@ -24,7 +27,7 @@ Bullet::Bullet(Texture *texture,
 
 	this->sprite.setScale(scale);
 	this->sprite.setPosition(position);
-	this->sprite.setRotation(atan2(this->direction.y, this->direction.x) * 180 / 3.14159265359 + 180);
+	this->sprite.setRotation(atan2(this->direction.y, this->direction.x) * 180 / 3.14159265359);
 }
 
 Bullet::~Bullet()
@@ -36,12 +39,14 @@ void Bullet::Movement(const float &dt)
 {
 	if (this->acceleration > 0.f)
 	{
-		if (this->currentVelocity.x < this->maxVelocity)
+		if (this->currentVelocity.x < this->maxVelocity && this->direction.x > 0.f
+			|| this->currentVelocity.x > -this->maxVelocity && this->direction.x < 0.f)
 			this->currentVelocity.x += this->acceleration 
 			* this->direction.x 
 			* dt * this->dtMultiplier;
 
-		if (this->currentVelocity.y < this->maxVelocity)
+		if (this->currentVelocity.y < this->maxVelocity && this->direction.y > 0.f
+			|| this->currentVelocity.y > -this->maxVelocity && this->direction.y < 0.f)
 			this->currentVelocity.y += this->acceleration 
 			* this->direction.y 
 			* dt * this->dtMultiplier;
