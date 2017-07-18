@@ -771,7 +771,8 @@ std::string Player::getStatsAsString()const
 		"\n\nPower: " + std::to_string(this->power) +
 		"\nPlating: " + std::to_string(this->plating) +
 		"\nWiring: " + std::to_string(this->wiring) +
-		"\nCooling: " + std::to_string(this->cooling);
+		"\nCooling: " + std::to_string(this->cooling) +
+		"\n\nShield Capacity: " + std::to_string(this->shieldTimerMax);
 }
 
 void Player::reset()

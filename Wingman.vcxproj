@@ -152,6 +152,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameMapMaker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Particle.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="TextTag.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Upgrade.cpp" />
+    <ClCompile Include="Wingman.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Boss.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="dArr.h" />
+    <ClInclude Include="GameMapMaker.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Pickup.h" />
@@ -179,6 +182,7 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileArr.h" />
     <ClInclude Include="Upgrade.h" />
+    <ClInclude Include="Wingman.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

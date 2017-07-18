@@ -1,4 +1,7 @@
 #include"Game.h"
+#include"GameMapMaker.h"
+
+bool MAPMAKER = true;
 
 int main()
 {
@@ -10,6 +13,7 @@ int main()
 	float dt = 0.f;
 
 	Game game(&window);
+	GameMapMaker gameMapMaker(&window);
 
 	//Game loop
 	while (window.isOpen())
@@ -25,8 +29,16 @@ int main()
 
 		dt = clock.restart().asSeconds();
 
-		game.update(dt);
-		game.draw();
+		if (MAPMAKER)
+		{
+			gameMapMaker.update(dt);
+			gameMapMaker.draw();
+		}
+		else
+		{
+			game.update(dt);
+			game.draw();
+		}
 	}
 
 	return 0;

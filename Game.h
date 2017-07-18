@@ -54,8 +54,7 @@ private:
 	dArr<TextTag> textTags;
 
 	//MAP
-	Map map;
-	Stage stage;
+	Stage *stage;
 
 	//Players
 	dArr<Player> players;

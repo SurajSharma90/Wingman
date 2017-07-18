@@ -18,6 +18,8 @@ Game::Game(RenderWindow *window)
 	this->difficulty = 0;
 	this->difficultyTimer = 0.f;
 
+	this->stage = nullptr;
+
 	this->paused = true;
 	this->keyTimeMax = 10.f;
 	this->keyTime = this->keyTimeMax;
@@ -27,7 +29,7 @@ Game::Game(RenderWindow *window)
 
 Game::~Game()
 {
-
+	delete this->stage;
 }
 
 void Game::toggleFullscreen()
@@ -292,7 +294,7 @@ void Game::initUI()
 
 void Game::initMap()
 {
-
+	this->stage = new Stage(10, 10);
 }
 
 void Game::initialize()
@@ -1491,7 +1493,7 @@ void Game::drawEnemies()
 
 void Game::drawMap()
 {
-	stage.draw(
+	stage->draw(
 		*this->window, 
 		this->mainView
 	);
