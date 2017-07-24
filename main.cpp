@@ -1,7 +1,7 @@
 #include"Game.h"
 #include"GameMapMaker.h"
 
-bool MAPMAKER = true;
+bool MAPMAKER = false;
 
 int main()
 {
@@ -24,7 +24,7 @@ int main()
 			if (event.type == Event::Closed)
 				window.close();
 			if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
-				window.close();
+				window.close();		
 		}
 
 		dt = clock.restart().asSeconds();

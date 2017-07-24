@@ -295,6 +295,7 @@ void Game::initUI()
 void Game::initMap()
 {
 	this->stage = new Stage(10, 10);
+	this->stage->loadStage("lel.wmap", this->mainView);
 }
 
 void Game::initialize()
@@ -314,18 +315,31 @@ void Game::initialize()
 	//Init players
 	this->players.add(Player());
 
-	this->players.add(Player(
-		Keyboard::Numpad8,
-		Keyboard::Numpad5,
-		Keyboard::Numpad4,
-		Keyboard::Numpad6,
-		Keyboard::RControl,
-		Keyboard::RShift,
-		Keyboard::Numpad7,
-		Keyboard::Numpad1,
-		Keyboard::Numpad2,
-		Keyboard::Numpad3,
-		Keyboard::Numpad0));
+	//this->players.add(Player(
+	//	Keyboard::Numpad8,
+	//	Keyboard::Numpad5,
+	//	Keyboard::Numpad4,
+	//	Keyboard::Numpad6,
+	//	Keyboard::RControl,
+	//	Keyboard::RShift,
+	//	Keyboard::Numpad7,
+	//	Keyboard::Numpad1,
+	//	Keyboard::Numpad2,
+	//	Keyboard::Numpad3,
+	//	Keyboard::Numpad0));
+
+	//this->players.add(Player(
+	//	Keyboard::I,
+	//	Keyboard::K,
+	//	Keyboard::J,
+	//	Keyboard::L,
+	//	Keyboard::RAlt,
+	//	Keyboard::Period,
+	//	Keyboard::Comma,
+	//	Keyboard::Num8,
+	//	Keyboard::Num9,
+	//	Keyboard::Num0,
+	//	Keyboard::Add));
 
 	this->playersAlive = this->players.size();
 
@@ -342,7 +356,7 @@ void Game::initialize()
 
 void Game::updateView()
 {
-	//this->mainView.setCenter(this->players[0].getPosition());
+	this->mainView.move(this->stage->getScrollSpeed(), 0.f);
 }
 
 void Game::restartUpdate()
@@ -564,7 +578,7 @@ void Game::playerUpdate(const float &dt)
 		if (this->players[i].isAlive())
 		{
 			//UPDATE PLAYERS
-			this->players[i].update(this->window->getSize(), dt);
+			this->players[i].update(this->mainView, dt);
 
 			//Bullets update
 			this->playerBulletUpdate(dt, i);
@@ -851,7 +865,7 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 		}
 
 		//Window bounds check
-		if (this->players[i].getBullet(k).getPosition().x > this->window->getSize().x)
+		if (this->players[i].getBullet(k).getPosition().x > this->mainView.getCenter().x + this->mainView.getSize().x/2)
 		{
 			bulletRemoved = true;		
 		}
@@ -869,7 +883,7 @@ void Game::enemyUpdate(const float &dt)
 		this->enemies.add(Enemy(
 			this->enemyTextures,
 			this->enemyBulletTextures,
-			this->window->getSize(),
+			this->mainView,
 			Vector2f(0.f, 0.f),
 			Vector2f(-1.f, 0.f),
 			rand() % 3,
@@ -928,7 +942,7 @@ void Game::enemyUpdate(const float &dt)
 		}
 
 		//Enemies out of bounds
-		if (this->enemies[i].getPosition().x < 0 - this->enemies[i].getGlobalBounds().width)
+		if (this->enemies[i].getPosition().x < this->mainView.getCenter().x - this->mainView.getSize().x/2 - this->enemies[i].getGlobalBounds().width)
 		{
 			enemyRemoved = true;
 		}
@@ -1021,10 +1035,10 @@ void Game::enemyBulletUpdate(const float &dt)
 
 		//Window bounds check
 		if (!bulletRemoved
-			&& (Enemy::enemyBullets[i].getPosition().x > this->window->getSize().x
-				|| Enemy::enemyBullets[i].getPosition().x < 0
-				|| Enemy::enemyBullets[i].getPosition().y > this->window->getSize().y
-				|| Enemy::enemyBullets[i].getPosition().y < 0
+			&& (Enemy::enemyBullets[i].getPosition().x > this->mainView.getCenter().x + this->mainView.getSize().x/2
+				|| Enemy::enemyBullets[i].getPosition().x < this->mainView.getCenter().x - this->mainView.getSize().x / 2
+				|| Enemy::enemyBullets[i].getPosition().y > this->mainView.getCenter().y + this->mainView.getSize().y / 2
+				|| Enemy::enemyBullets[i].getPosition().y < this->mainView.getCenter().y - this->mainView.getSize().y / 2
 				))
 		{
 			bulletRemoved = true;
@@ -1344,9 +1358,9 @@ void Game::powerupsUpdate(const float &dt)
 	}
 }
 
-void Game::mapUpdate()
+void Game::mapUpdate(const float &dt)
 {
-
+	this->stage->update(dt, this->mainView, false);
 }
 
 void Game::particlesUpdate(const float &dt)
@@ -1393,6 +1407,9 @@ void Game::update(const float &dt)
 		//Score timer and multipliers
 		this->updateScore();
 		
+		//Map update
+		this->mapUpdate(dt);
+
 		//Update players, bullets and combat
 		this->playerUpdate(dt);
 
@@ -1428,6 +1445,7 @@ void Game::update(const float &dt)
 
 void Game::drawUI()
 {
+	//FIX!
 	//Draw texttags
 	for (size_t i = 0; i < this->textTags.size(); i++)
 	{
@@ -1495,7 +1513,8 @@ void Game::drawMap()
 {
 	stage->draw(
 		*this->window, 
-		this->mainView
+		this->mainView,
+		false
 	);
 }
 
@@ -1542,7 +1561,7 @@ void Game::draw()
 	//Draw map
 	this->drawMap();
 
-	//Draw players
+	//Draw playerspdssdwds
 	this->drawPlayers();
 
 	//Draw enemies

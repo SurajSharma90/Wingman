@@ -134,7 +134,7 @@ public:
 	void pickupsUpdate(const float &dt);
 	void upgradesUpdate(const float &dt);
 	void powerupsUpdate(const float &dt);
-	void mapUpdate();
+	void mapUpdate(const float &dt);
 	void particlesUpdate(const float &dt);
 	void update(const float &dt);
 

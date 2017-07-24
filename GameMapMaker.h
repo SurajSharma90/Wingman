@@ -16,6 +16,7 @@ private:
 	float keyTimeMax;
 	float keyTime;
 	bool fullscreen;
+	bool backgroundTile;
 
 	//Mouse positions
 	Vector2i mousePosWindow;
@@ -35,6 +36,7 @@ private:
 	Font font;
 
 	//MAP
+	std::string stageName;
 	Stage *stage;
 
 public:
@@ -49,6 +51,10 @@ public:
 	//Functions
 	void toggleFullscreen();
 
+	void newStage();
+	void saveStage();
+	void loadStage();
+
 	void initView();
 	void initMapTextures();
 	void initTextures();
@@ -59,7 +65,7 @@ public:
 	void updateMousePositions();
 	void updateView(const float &dt);
 	void updateTimers(const float &dt);
-	void mapUpdate();
+	void mapUpdate(const float &dt);
 	void updateControls();
 	void updateAddRemoveTiles();
 	void updateUI();
@@ -67,7 +73,6 @@ public:
 
 	void drawUIWindow();
 	void drawUIView();
-
 	void drawMap();
 	void draw();
 };

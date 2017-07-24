@@ -1,18 +1,6 @@
 #pragma once
 
-#include"SFML\Graphics.hpp"
-#include"SFML\System.hpp"
-#include"SFML\Audio.hpp"
-#include<iostream>
-#include<vector>
-#include<cstdlib>
-#include<math.h>
-#include<fstream>
-#include<sstream>
-#include"dArr.h"
-#include"Wingman.h"
-
-using namespace sf;
+#include"EnemySpawner.h"
 
 enum powerupTypes {RF = 0, XP2};
 

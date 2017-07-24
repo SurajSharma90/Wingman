@@ -5,10 +5,18 @@
 class Stage
 {
 private:
+	float dtMultiplier;
 	unsigned long stageSizeX;
 	unsigned long stageSizeY;
 	TileArr <TileArr<Tile> > tiles;
-	
+	TileArr <TileArr<Tile> > backgroundTiles;
+	TileArr <TileArr<Tile> > enemySpawners;
+
+	float scrollSpeed;
+
+	Sprite background1;
+	Sprite background2;
+
 	//Optimization
 	int fromCol, toCol;
 	int fromRow, toRow;
@@ -22,16 +30,17 @@ public:
 	//Accessors
 	inline int getSizeX()const { return this->stageSizeX; }
 	inline int getSizeY()const { return this->stageSizeY; }
+	inline float getScrollSpeed()const { return this->scrollSpeed; }
 
-	void addTile(const Tile tile, unsigned row, unsigned col);
-	void removeTile(unsigned row, unsigned col);
+	void addTile(const Tile tile, unsigned row, unsigned col, bool background);
+	void removeTile(unsigned row, unsigned col, bool background);
 
-	void update(
-		int fromCol, int toCol,
-		int fromRow, int toRow);
+	void saveStage(std::string fileName);
+	bool loadStage(std::string fileName, View &view);
 
-	void draw(
-		RenderTarget &target, 
-		View &view);
+	void updateBackground(const float &dt, unsigned row, unsigned col);
+	void update(const float &dt, View &view, bool editor);
+
+	void draw(RenderTarget &target, View &view, bool editor);
 };
 

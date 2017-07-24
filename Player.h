@@ -175,8 +175,8 @@ public:
 	void updateAccessories(const float &dt);
 	void updatePowerups();
 	void combat(const float &dt);
-	void movement(Vector2u windowBounds, const float &dt);
-	void update(Vector2u windowBounds, const float &dt);
+	void movement(View &view, const float &dt);
+	void update(View &view, const float &dt);
 	void draw(RenderTarget &target);
 
 	//Statics
