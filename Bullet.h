@@ -7,7 +7,7 @@ class Bullet
 private:
 	float dtMultiplier;
 
-	Texture *texture;
+	int type;
 	Sprite sprite;
 
 	Vector2f currentVelocity;
@@ -18,7 +18,7 @@ private:
 	int damage;
 
 public:
-	Bullet(Texture *texture, 
+	Bullet(int type,
 		Vector2f position, Vector2f scale,
 		Vector2f direction, float initialVelocity,
 		float maxVelocity, float acceleration,
@@ -52,5 +52,18 @@ public:
 		else
 			return v / length;
 	}
+
+	//Static
+	enum bullets { 
+		LASER_RED = 0, 
+		MISSILE_LIGHT_RIGHT, 
+		MISSILE_HEAVY_RIGHT, 
+		BULLET_CIRCULAR_RED 
+	};
+
+	static dArr<Texture> textures;
+	static int nrOfTextures;
+
+	static void initTextures();
 };
 

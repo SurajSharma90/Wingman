@@ -2,15 +2,93 @@
 
 unsigned Player::players = 0;
 
-dArr<Texture> Player::playerBodyTextures;
-dArr<Texture> Player::playerBulletTextures;
-dArr<Texture> Player::playerMainGunTextures;
-dArr<Texture> Player::playerShieldTextures;
+dArr<Texture> Player::bodyTextures;
+dArr<Texture> Player::mainGunTextures;
+dArr<Texture> Player::shieldTextures;
 dArr<Texture> Player::lWingTextures;
 dArr<Texture> Player::rWingTextures;
 dArr<Texture> Player::cPitTextures;
 dArr<Texture> Player::auraTextures;
 
+void Player::initTextures()
+{
+	Texture temp;
+
+	//Init textures regular
+	temp.loadFromFile("Textures/ship.png");
+	Player::bodyTextures.add(temp);
+
+	//Player guns
+	temp.loadFromFile("Textures/Guns/gun01.png");
+	Player::mainGunTextures.add(Texture(temp));
+	temp.loadFromFile("Textures/Guns/gun02.png");
+	Player::mainGunTextures.add(Texture(temp));
+	temp.loadFromFile("Textures/Guns/gun03.png");
+	Player::mainGunTextures.add(Texture(temp));
+
+	//Player shields
+	temp.loadFromFile("Textures/Player/shield.png");
+	Player::shieldTextures.add(Texture(temp));
+
+	//Init accessory textures
+	std::ifstream in;
+
+	in.open("Textures/Accessories/leftwings.txt");
+	std::string fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::lWingTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/rightwings.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::rWingTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/cockpits.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::cPitTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+
+	in.open("Textures/Accessories/auras.txt");
+	fileName = "";
+
+	if (in.is_open())
+	{
+		while (getline(in, fileName))
+		{
+			temp.loadFromFile(fileName);
+			Player::auraTextures.add(Texture(temp));
+		}
+	}
+
+	in.close();
+}
 
 Player::Player(
 	int UP,
@@ -54,12 +132,12 @@ Player::Player(
 		this->sprite.getGlobalBounds().height / 2;
 
 	//Textures & Sprites
-	this->sprite.setTexture(Player::playerBodyTextures[0]);
+	this->sprite.setTexture(Player::bodyTextures[0]);
 	this->sprite.setScale(0.08f, 0.08f);
 	this->sprite.setColor(Color(10, 10, 10, 255));
 	this->sprite.setPosition(100.f, 100.f);
 
-	this->mainGunSprite.setTexture(Player::playerMainGunTextures[0]);
+	this->mainGunSprite.setTexture(Player::mainGunTextures[0]);
 	this->mainGunSprite.setOrigin(
 		this->mainGunSprite.getGlobalBounds().width / 2,
 		this->mainGunSprite.getGlobalBounds().height / 2
@@ -73,7 +151,7 @@ Player::Player(
 	);
 	this->mainGunSprite.setScale(0.9f, 0.9f);
 
-	this->deflectorShield.setTexture(Player::playerShieldTextures[0]);
+	this->deflectorShield.setTexture(Player::shieldTextures[0]);
 	this->deflectorShield.setOrigin(
 		this->deflectorShield.getGlobalBounds().width/2,
 		this->deflectorShield.getGlobalBounds().height/2
@@ -165,7 +243,7 @@ Player::Player(
 	this->stabilizerForce = 0.3f;
 
 	//Guns
-	this->currentWeapon = LASER;
+	this->currentWeapon = Player::LASER_NORMAL;
 
 	//Shields
 	this->shielding = false;
@@ -199,18 +277,18 @@ int Player::getDamage()const
 
 	switch (this->currentWeapon)
 	{
-	case LASER:
+	case Player::LASER_NORMAL:
 
 		damage = rand() % this->damageMax + this->damage;
 
 		break;
-	case MISSILE01:
+	case Player::MISSILE_LIGHT:
 
 		damage = rand() % this->damageMax + this->damage;
 		damage *= 2;
 
 		break;
-	case MISSILE02:
+	case Player::MISSILE_HEAVY:
 
 		damage = rand() % this->damageMax + this->damage;
 		damage *= 4;
@@ -506,14 +584,14 @@ void Player::combat(const float &dt)
 	if (Keyboard::isKeyPressed(Keyboard::Key(this->controls[controls::SHOOT]))
 		&& this->shootTimer >= this->shootTimerMax)
 	{
-		if (this->currentWeapon == LASER)
+		if (this->currentWeapon == Player::LASER_NORMAL)
 		{
 			//Create bullet
 			if (this->mainGunLevel == 0)
 			{
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y),
 						Vector2f(0.15f, 0.15f),
 						Vector2f(1.f, 0.f),
@@ -527,7 +605,7 @@ void Player::combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y - 15.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
@@ -540,7 +618,7 @@ void Player::combat(const float &dt)
 
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y + 15.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
@@ -555,7 +633,7 @@ void Player::combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y - 41.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
@@ -568,7 +646,7 @@ void Player::combat(const float &dt)
 
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
@@ -581,7 +659,7 @@ void Player::combat(const float &dt)
 
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[LASER],
+						Bullet::LASER_RED,
 						Vector2f(this->playerCenter.x + 100.f, this->playerCenter.y + 43.f),
 						Vector2f(0.2f, 0.2f),
 						Vector2f(1.f, 0.f),
@@ -596,12 +674,12 @@ void Player::combat(const float &dt)
 			//Animate gun
 			this->mainGunSprite.move(-40.f, 0.f);
 		}
-		else if (this->currentWeapon == MISSILE01)
+		else if (this->currentWeapon == Player::MISSILE_LIGHT)
 		{
 			//Create bullet
 			this->bullets.add(
 				Bullet(
-					&Player::playerBulletTextures[MISSILE01],
+					Bullet::MISSILE_LIGHT_RIGHT,
 					Vector2f(this->playerCenter.x, this->playerCenter.y - 25.f),
 					Vector2f(0.05f, 0.05f),
 					Vector2f(1.f, 0.f), 
@@ -616,7 +694,7 @@ void Player::combat(const float &dt)
 			{
 				this->bullets.add(
 					Bullet(
-						&Player::playerBulletTextures[MISSILE01],
+						Bullet::MISSILE_LIGHT_RIGHT,
 						Vector2f(this->playerCenter.x, this->playerCenter.y + 25.f),
 						Vector2f(0.05f, 0.05f),
 						Vector2f(1.f, 0.f),
@@ -628,7 +706,7 @@ void Player::combat(const float &dt)
 				);
 			}
 		}
-		else if (this->currentWeapon == MISSILE02)
+		else if (this->currentWeapon == Player::MISSILE_HEAVY)
 		{
 			if (this->dualMissiles02)
 			{
@@ -703,8 +781,8 @@ void Player::setGunLevel(int gunLevel)
 { 
 	this->mainGunLevel = gunLevel; 
 
-	if (this->mainGunLevel < Player::playerMainGunTextures.size())
-		this->mainGunSprite.setTexture(Player::playerMainGunTextures[this->mainGunLevel]);
+	if (this->mainGunLevel < Player::mainGunTextures.size())
+		this->mainGunSprite.setTexture(Player::mainGunTextures[this->mainGunLevel]);
 	else
 		std::cout << "NO TEXTURE FOR THAT MAIN GUN!" << "\n";
 }
@@ -784,7 +862,7 @@ void Player::reset()
 	this->sprite.setPosition(Vector2f(100.f, 100.f));
 	this->bullets.clear();
 	this->upgradesAcquired.clear();
-	this->setGunLevel(0);
+	this->setGunLevel(Player::LASER_NORMAL);
 	this->wiring = 0;
 	this->cooling = 0;
 	this->power = 0;
@@ -798,7 +876,7 @@ void Player::reset()
 	this->level = 1;
 	this->exp = 0;
 	this->expNext = 20;
-	this->currentWeapon = LASER;
+	this->currentWeapon = LASER_NORMAL;
 	this->statPoints = 0;
 	this->shootTimer = this->shootTimerMax;
 	this->damageTimer = this->damageTimerMax;

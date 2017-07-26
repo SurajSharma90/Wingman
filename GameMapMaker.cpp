@@ -167,17 +167,10 @@ void GameMapMaker::initView()
 	));
 }
 
-void GameMapMaker::initMapTextures()
-{
-	Tile::tileTextures.loadFromFile("Textures/Map/textureSheet.png");
-}
-
 void GameMapMaker::initTextures()
 {
-	Texture temp;
-
 	//Map
-	this->initMapTextures();
+	Tile::initTextures();
 }
 
 void GameMapMaker::initUI()
@@ -191,7 +184,7 @@ void GameMapMaker::initUI()
 	this->selector.setOutlineColor(Color::Red);
 	this->selector.setOutlineThickness(2.f);
 
-	this->textureSelector.setTexture(Tile::tileTextures);
+	this->textureSelector.setTexture(Tile::textures);
 }
 
 void GameMapMaker::initMap()

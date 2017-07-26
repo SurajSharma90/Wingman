@@ -41,7 +41,18 @@ public:
 	void Draw(RenderTarget &target);
 
 	//Static
-	static int nrOfUpgrades;
-	static dArr<Texture> upgradeTextures;
+	static int nrOfTextures;
+	static dArr<Texture> textures;
+
+	static void initTextures();
+
+	enum upgrades { 
+		STAT_POINT = 0,
+		HEALTH_TANK,
+		DOUBLE_RAY,
+		TRIPLE_RAY,
+		PIERCING_SHOT,
+		SHIELD,
+	};
 };
 

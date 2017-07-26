@@ -1,7 +1,19 @@
 #include "Powerup.h"
 
-int Powerup::nrOfPowerups = 2;
-dArr<Texture> Powerup::powerupTextures;
+int Powerup::nrOfTextures;
+dArr<Texture> Powerup::textures;
+
+void Powerup::initTextures()
+{
+	Texture temp;
+
+	temp.loadFromFile("Textures/Powerups/powerupRF.png");
+	Powerup::textures.add(Texture(temp));
+	temp.loadFromFile("Textures/Powerups/powerupXP.png");
+	Powerup::textures.add(Texture(temp));
+
+	Powerup::nrOfTextures = Powerup::textures.size();
+}
 
 Powerup::Powerup(int type, float timerMax, Vector2f pos)
 {
@@ -10,7 +22,11 @@ Powerup::Powerup(int type, float timerMax, Vector2f pos)
 	this->timerMax = timerMax;
 	this->timer = timerMax;
 
-	this->sprite.setTexture(Powerup::powerupTextures[this->type]);
+	if (this->type >= Powerup::nrOfTextures || this->type < 0)
+		std::cout << "ERROR NO SUCH POWERUP TEXTURE OR TYPE! CONSTRUTOR POWERUP" << "\n\n";
+	else
+		this->sprite.setTexture(Powerup::textures[this->type]);
+	
 	this->sprite.setOrigin(
 		this->sprite.getGlobalBounds().width / 2,
 		this->sprite.getGlobalBounds().height / 2

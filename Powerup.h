@@ -32,7 +32,14 @@ public:
 	void draw(RenderTarget &target);
 
 	//Static
-	static int nrOfPowerups;
-	static dArr<Texture> powerupTextures;
+	static int nrOfTextures;
+	static dArr<Texture> textures;
+
+	static void initTextures();
+
+	enum powerups { 
+		RAPIDFIRE = 0, 
+		EXPERIENCE_DOUBLE
+	};
 };
 

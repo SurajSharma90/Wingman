@@ -8,7 +8,6 @@ private:
 	float dtMultiplier;
 	int type;
 
-	dArr<Texture> *textures;
 	Sprite sprite;
 
 	float aliveTimerMax;
@@ -16,7 +15,6 @@ private:
 
 public:
 	Pickup(
-		dArr<Texture> &textures, 
 		Vector2f position,
 		int type,
 		float duration
@@ -31,5 +29,11 @@ public:
 
 	void Update(const float &dt);
 	void Draw(RenderTarget &target);
+
+	//Static varaibles
+	static dArr<Texture> textures;
+	static int nrOfTextures;
+
+	static void initTextures();
 };
 

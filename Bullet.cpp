@@ -1,6 +1,25 @@
 #include "Bullet.h"
 
-Bullet::Bullet(Texture *texture, 
+dArr<Texture> Bullet::textures;
+int Bullet::nrOfTextures;
+
+void Bullet::initTextures()
+{
+	Texture temp;
+	
+	temp.loadFromFile("Textures/Guns/rayTex01.png");
+	Bullet::textures.add(temp);
+	temp.loadFromFile("Textures/Guns/missileTex01.png");
+	Bullet::textures.add(temp);
+	temp.loadFromFile("Textures/Guns/missileHTex01.png");
+	Bullet::textures.add(temp);
+	temp.loadFromFile("Textures/Guns/roundBulletRed.png");
+	Bullet::textures.add(temp);
+
+	Bullet::nrOfTextures = Bullet::textures.size();
+}
+
+Bullet::Bullet(int type,
 	Vector2f position, Vector2f scale,
 	Vector2f direction, float initialVelocity,
 	float maxVelocity, float acceleration,
@@ -10,8 +29,19 @@ Bullet::Bullet(Texture *texture,
 
 	this->damage = damage;
 
-	this->texture = texture;
-	this->sprite.setTexture(*this->texture);
+	if (type >= Bullet::nrOfTextures)
+	{
+		std::cout << "ERROR NO SUCH BULLET TYPE!" << "\n\n";
+		type = Bullet::nrOfTextures-1;
+	}
+
+	this->type = type;
+
+	if (this->type >= 0)
+		this->sprite.setTexture(Bullet::textures[this->type]);
+	else
+		std::cout << "ERROR COULD NOT SET TEXTURE, CONSTRUCTOR BULLET" << "\n\n";
+
 	this->initialVelocity = initialVelocity;
 	this->maxVelocity = maxVelocity;
 	this->acceleration = acceleration;

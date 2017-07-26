@@ -91,9 +91,6 @@ private:
 	dArr<Texture> enemyBulletTextures;
 
 	//Boss Textures
-	dArr<Texture> bossBodyTextures;
-	dArr<Texture> bossGunTextures;
-	dArr<Texture> bossBulletTextures;
 
 public:
 	Game(RenderWindow *window);
@@ -109,8 +106,6 @@ public:
 	void pauseGame();
 
 	void initView();
-	void initPlayerTextures();
-	void initMapTextures();
 	void initTextures();
 	void initUI();
 	void initMap();
@@ -142,6 +137,7 @@ public:
 	void drawPlayers();
 	void drawEnemies();
 	void drawMap();
+	void drawTextTags();
 	void drawPickups();
 	void drawUpgrades();
 	void drawPowerups();

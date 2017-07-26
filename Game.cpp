@@ -75,161 +75,35 @@ void Game::initView()
 	));
 }
 
-void Game::initPlayerTextures()
-{
-	Texture temp;
-
-	//Init textures regular
-	temp.loadFromFile("Textures/ship.png");
-	Player::playerBodyTextures.add(temp);
-
-	//Bullets
-	temp.loadFromFile("Textures/Guns/rayTex01.png");
-	Player::playerBulletTextures.add(temp);
-	temp.loadFromFile("Textures/Guns/missileTex01.png");
-	Player::playerBulletTextures.add(temp);
-
-	//Player guns
-	temp.loadFromFile("Textures/Guns/gun01.png");
-	Player::playerMainGunTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Guns/gun02.png");
-	Player::playerMainGunTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Guns/gun03.png");
-	Player::playerMainGunTextures.add(Texture(temp));
-
-	//Player shields
-	temp.loadFromFile("Textures/Player/shield.png");
-	Player::playerShieldTextures.add(Texture(temp));
-
-	//Init accessory textures
-	std::ifstream in;
-
-	in.open("Textures/Accessories/leftwings.txt");
-	std::string fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			temp.loadFromFile(fileName);
-			Player::lWingTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/rightwings.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			temp.loadFromFile(fileName);
-			Player::rWingTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/cockpits.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			temp.loadFromFile(fileName);
-			Player::cPitTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-
-	in.open("Textures/Accessories/auras.txt");
-	fileName = "";
-
-	if (in.is_open())
-	{
-		while (getline(in, fileName))
-		{
-			temp.loadFromFile(fileName);
-			Player::auraTextures.add(Texture(temp));
-		}
-	}
-
-	in.close();
-}
-
-void Game::initMapTextures()
-{
-	Tile::tileTextures.loadFromFile("Textures/Map/textureSheet.png");
-}
-
 void Game::initTextures()
 {
 	Texture temp;
 
 	//Map
-	this->initMapTextures();
+	Tile::initTextures();
+
+	//Bullet
+	Bullet::initTextures();
 
 	//Player
-	this->initPlayerTextures();
+	Player::initTextures();
 
-	//Pickup textures
-	temp.loadFromFile("Textures/Pickups/hpSupply.png");
-	this->pickupTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Pickups/missileSupply.png");
-	this->pickupTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Pickups/missileHSupply.png");
-	this->pickupTextures.add(Texture(temp));
-	this->nrOfPickups = this->pickupTextures.size();
+	//Pickup
+	Pickup::initTextures();
 
 	//Upgrades
-	temp.loadFromFile("Textures/Upgrades/statpoint.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Upgrades/healthtank.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Upgrades/doubleray.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Upgrades/tripleray.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Upgrades/piercingshot.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Upgrades/shield.png");
-	Upgrade::upgradeTextures.add(Texture(temp));
-	Upgrade::nrOfUpgrades = Upgrade::upgradeTextures.size();
+	Upgrade::initTextures();
 
 	//Powerup
-	temp.loadFromFile("Textures/Powerups/powerupRF.png");
-	Powerup::powerupTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/Powerups/powerupXP.png");
-	Powerup::powerupTextures.add(Texture(temp));
+	Powerup::initTextures();
 
 	//Enemies
-	temp.loadFromFile("Textures/enemyMoveLeft.png");
-	this->enemyTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/enemyFollow.png");
-	this->enemyTextures.add(Texture(temp));
-	temp.loadFromFile("Textures/enemyMoveLeftShoot.png");
-	this->enemyTextures.add(Texture(temp));
-
-	temp.loadFromFile("Textures/Guns/enemyBullet.png");
-	this->enemyBulletTextures.add(Texture(temp));
+	Enemy::initTextures();
 
 	//Bosses
-	temp.loadFromFile("Textures/Bosses/Bodies/BossBody01.png");
-	this->bossBodyTextures.add(Texture(temp));
-
-	temp.loadFromFile("Textures/Bosses/Guns/BossGun01.png");
-	this->bossGunTextures.add(Texture(temp));
-
-	temp.loadFromFile("Textures/Bosses/Bullets/BossBullet01.png");
-	this->bossBulletTextures.add(Texture(temp));
 
 	//Particles
-	temp.loadFromFile("Textures/Particles/particle01.png");
-	Particle::particleTextures.add(temp);
+	Particle::initTextures();
 }
 
 void Game::initUI()
@@ -780,7 +654,6 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 						if (dropChance > 50)
 						{
 							this->pickups.add(Pickup(
-								this->pickupTextures,
 								this->enemies[j].getPosition(),
 								0,
 								150.f)
@@ -796,7 +669,7 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 
 						if (dropChance > 70)
 						{
-							uType = rand() % Upgrade::nrOfUpgrades;
+							uType = rand() % Upgrade::nrOfTextures;
 
 							for (size_t k = 0; k < this->players[i].getAcquiredUpgrades().size(); k++)
 							{
@@ -825,7 +698,7 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 
 						if (dropChance > 70)
 						{
-							uType = rand() % Powerup::nrOfPowerups;
+							uType = rand() % Powerup::nrOfTextures;
 
 							this->powerups.add( 
 								Powerup(
@@ -881,8 +754,6 @@ void Game::enemyUpdate(const float &dt)
 	if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
 	{
 		this->enemies.add(Enemy(
-			this->enemyTextures,
-			this->enemyBulletTextures,
 			this->mainView,
 			Vector2f(0.f, 0.f),
 			Vector2f(-1.f, 0.f),
@@ -1190,7 +1061,7 @@ void Game::upgradesUpdate(const float &dt)
 				switch (this->upgrades[i].getType())
 				{
 
-				case 0: //Statpoint
+				case Upgrade::STAT_POINT: //Statpoint
 
 					this->players[k].addStatPointRandom();
 
@@ -1209,7 +1080,7 @@ void Game::upgradesUpdate(const float &dt)
 
 					break;
 
-				case 1: //Healthtank
+				case Upgrade::HEALTH_TANK: //Healthtank
 					this->players[k].upgradeHP();
 
 					//HT TEXT TAG
@@ -1227,7 +1098,7 @@ void Game::upgradesUpdate(const float &dt)
 
 					break;
 
-				case 2: //Doubleray
+				case Upgrade::DOUBLE_RAY: //Doubleray
 					if (this->players[k].getGunLevel() < 1)
 						this->players[k].setGunLevel(1);
 
@@ -1246,7 +1117,7 @@ void Game::upgradesUpdate(const float &dt)
 
 					break;
 
-				case 3: //Tripleray
+				case Upgrade::TRIPLE_RAY: //Tripleray
 					if (this->players[k].getGunLevel() < 2)
 						this->players[k].setGunLevel(2);
 
@@ -1265,7 +1136,7 @@ void Game::upgradesUpdate(const float &dt)
 
 					break;
 
-				case 4: //Piercing
+				case Upgrade::PIERCING_SHOT: //Piercing
 					this->players[k].enablePiercingShot();
 
 					//PS TEXT TAG
@@ -1283,7 +1154,7 @@ void Game::upgradesUpdate(const float &dt)
 
 					break;
 
-				case 5: //Shield
+				case Upgrade::SHIELD: //Shield
 					this->players[k].enableShield();
 
 					//SH TEXT TAG
@@ -1386,9 +1257,6 @@ void Game::update(const float &dt)
 	//Fullscreen
 	this->toggleFullscreen();
 
-	//View
-	this->updateView();
-
 	//PAUSE GAME
 	this->pauseGame();
 
@@ -1400,6 +1268,9 @@ void Game::update(const float &dt)
 	{
 		//Update timers
 		this->updateTimersUnpaused(dt);
+
+		//View
+		this->updateView();
 
 		//MAKE GAME HARDER WITH TIME
 		this->updateDifficulty();
@@ -1445,13 +1316,6 @@ void Game::update(const float &dt)
 
 void Game::drawUI()
 {
-	//FIX!
-	//Draw texttags
-	for (size_t i = 0; i < this->textTags.size(); i++)
-	{
-		this->textTags[i].Draw(*this->window);
-	}
-
 	//GAME OVER TEXT
 	if (this->playersAlive <= 0)
 	{
@@ -1518,6 +1382,15 @@ void Game::drawMap()
 	);
 }
 
+void Game::drawTextTags()
+{
+	//Draw texttags
+	for (size_t i = 0; i < this->textTags.size(); i++)
+	{
+		this->textTags[i].Draw(*this->window);
+	}
+}
+
 void Game::drawPickups()
 {
 	for (size_t i = 0; i < this->pickups.size(); i++)
@@ -1578,6 +1451,9 @@ void Game::draw()
 
 	//Draw Particles
 	this->drawParticles();
+
+	//Draw Texttags
+	this->drawTextTags();
 
 	//Draw UI
 

@@ -1,6 +1,17 @@
 #include "Particle.h"
 
-dArr<Texture> Particle::particleTextures;
+int Particle::nrOfTextures;
+dArr<Texture> Particle::textures;
+
+void Particle::initTextures()
+{
+	Texture temp;
+
+	temp.loadFromFile("Textures/Particles/particle01.png");
+	Particle::textures.add(temp);
+
+	Particle::nrOfTextures = Particle::textures.size();
+}
 
 Particle::Particle(
 	Vector2f pos,
@@ -14,7 +25,7 @@ Particle::Particle(
 {
 	this->dtMultiplier = 62.5f;
 
-	this->sprite.setTexture(Particle::particleTextures[textureIndex]);
+	this->sprite.setTexture(Particle::textures[textureIndex]);
 	this->sprite.setOrigin(
 		this->sprite.getGlobalBounds().width / 2,
 		this->sprite.getGlobalBounds().height / 2

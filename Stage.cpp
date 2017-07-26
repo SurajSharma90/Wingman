@@ -250,7 +250,6 @@ bool Stage::loadStage(std::string fileName, View &view)
 
 void Stage::updateBackground(const float &dt, unsigned row, unsigned col)
 {
-	//Tiles
 
 }
 

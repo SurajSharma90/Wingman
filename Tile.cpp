@@ -1,6 +1,13 @@
 #include "Tile.h"
 
-Texture Tile::tileTextures;
+//Static define
+Texture Tile::textures;
+int Tile::nrOfTextures = 1;
+
+void Tile::initTextures()
+{
+	Tile::textures.loadFromFile("Textures/Map/textureSheet.png");
+}
 
 Tile::Tile(
 	IntRect textureRect,
@@ -9,7 +16,7 @@ Tile::Tile(
 	bool isDamaging
 )
 {
-	this->sprite.setTexture(Tile::tileTextures);
+	this->sprite.setTexture(Tile::textures);
 	this->sprite.setTextureRect(textureRect);
 	this->sprite.setPosition(pos);
 

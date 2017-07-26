@@ -24,9 +24,6 @@ public:
 	);
 	virtual ~Tile();
 
-	//Static textures
-	static Texture tileTextures;
-
 	inline const Vector2f getPos()const { return this->sprite.getPosition(); }
 	inline const FloatRect getBounds()const { return this->sprite.getGlobalBounds(); }
 	inline const IntRect getTexRect()const { return this->sprite.getTextureRect(); }
@@ -42,5 +39,11 @@ public:
 
 	void update(const float &dt);
 	void draw(RenderTarget &target);
+
+	//Static
+	static Texture textures;
+	static int nrOfTextures;
+
+	static void initTextures();
 };
 

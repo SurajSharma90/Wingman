@@ -2,9 +2,6 @@
 
 #include"Bullet.h"
 
-enum controls { UP = 0, DOWN, LEFT, RIGHT, SHOOT, SHIELD, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA };
-enum weapons { LASER = 0, MISSILE01, MISSILE02 };
-
 class Player
 {
 private:
@@ -179,19 +176,6 @@ public:
 	void update(View &view, const float &dt);
 	void draw(RenderTarget &target);
 
-	//Statics
-	static unsigned players;
-
-	//Static Textures
-	static dArr<Texture> playerBodyTextures;
-	static dArr<Texture> playerBulletTextures;
-	static dArr<Texture> playerMainGunTextures;
-	static dArr<Texture> playerShieldTextures;
-	static dArr<Texture> lWingTextures;
-	static dArr<Texture> rWingTextures;
-	static dArr<Texture> cPitTextures;
-	static dArr<Texture> auraTextures;
-	
 	//Regular functions
 	float vectorLength(Vector2f v)
 	{
@@ -205,5 +189,22 @@ public:
 		else
 			return v / length;
 	}
+
+	//Statics
+	static unsigned players;
+
+	//Static Textures
+	static dArr<Texture> bodyTextures;
+	static dArr<Texture> mainGunTextures;
+	static dArr<Texture> shieldTextures;
+	static dArr<Texture> lWingTextures;
+	static dArr<Texture> rWingTextures;
+	static dArr<Texture> cPitTextures;
+	static dArr<Texture> auraTextures;
+
+	static void initTextures();
+
+	enum weapons {LASER_NORMAL = 0, MISSILE_LIGHT, MISSILE_HEAVY };
+	enum controls { UP = 0, DOWN, LEFT, RIGHT, SHOOT, SHIELD, STATS, CHANGE_LWING, CHANGE_CPIT, CHANGE_RWING, CHANGE_AURA };
 };
 
