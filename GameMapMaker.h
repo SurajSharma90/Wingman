@@ -16,7 +16,17 @@ private:
 	float keyTimeMax;
 	float keyTime;
 	bool fullscreen;
-	bool backgroundTile;
+	int toolSelect;
+	int backgroundIndex;
+	int backgroundWidth;
+	int backgroundHeight;
+
+	//Variables for enemySpawner
+	Vector2i enemyPosGrid;
+	bool enemyRandomSpawnPos;
+	int enemyType;
+	int enemyLevelInterval;
+	int nrOfEnemies;
 
 	//Mouse positions
 	Vector2i mousePosWindow;
@@ -32,8 +42,13 @@ private:
 
 	Sprite textureSelector;
 
+	//Buttons
+	dArr<WButton> buttons;
+
 	//Text
 	Font font;
+	Text selectorText;
+	Text enemySpawnerText;
 
 	//MAP
 	std::string stageName;
@@ -54,10 +69,13 @@ public:
 	void newStage();
 	void saveStage();
 	void loadStage();
+	void setBackground();
+	void setEnemySpawner();
 
 	void initView();
-	void initMapTextures();
+	void initButtons();
 	void initTextures();
+	void initText();
 	void initUI();
 	void initMap();
 	void initialize();
@@ -68,9 +86,12 @@ public:
 	void mapUpdate(const float &dt);
 	void updateControls();
 	void updateAddRemoveTiles();
+	void updateText();
+	void updateButtons();
 	void updateUI();
 	void update(const float &dt);
 
+	void drawText();
 	void drawUIWindow();
 	void drawUIView();
 	void drawMap();

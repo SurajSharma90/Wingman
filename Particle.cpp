@@ -35,12 +35,13 @@ Particle::Particle(
 	this->sprite.setColor(color);
 	this->color = color;
 
-	this->dir.x = rand() % 10 + static_cast<int>(dir.x);
-	this->dir.y = rand() % 10 + static_cast<int>(dir.y);
+	//From -10 to 10
+	this->dir.x = (rand() % 20 + static_cast<int>(dir.x)) - 10;
+	this->dir.y = (rand() % 20 + static_cast<int>(dir.y)) - 10;
 
 	this->dir = normalize(this->dir, vectorLength(this->dir));
 
-	this->deceleration = 0.5f;
+	this->deceleration = 0.2f;
 	this->maxVel = maxVel;
 	this->currentVel.x = maxVel * this->dir.x;
 	this->currentVel.y = maxVel * this->dir.y;

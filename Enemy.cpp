@@ -14,15 +14,19 @@ void Enemy::initTextures()
 	Enemy::textures.add(Texture(temp));
 	temp.loadFromFile("Textures/enemyFollow.png");
 	Enemy::textures.add(Texture(temp));
+	temp.loadFromFile("Textures/enemyMoveLeft.png");
+	Enemy::textures.add(Texture(temp));
 	temp.loadFromFile("Textures/enemyMoveLeftShoot.png");
 	Enemy::textures.add(Texture(temp));
 
 	Enemy::nrOfTextures = Enemy::textures.size();
 }
 
+int Enemy::nrOfTypes = 4;
 
 Enemy::Enemy(
 	View& view,
+	bool randomPos,
 	Vector2f position, 
 	Vector2f moveDirection, 
 	int type,
@@ -44,9 +48,13 @@ Enemy::Enemy(
 		this->sprite.getGlobalBounds().height / 2
 	);
 	
+	this->color = Color::White;
+	this->damageColor = Color::Red;
+
 	this->damageTimerMax = 4.f;
 	this->damageTimer = 0;
 
+	this->nrOfBullets = 0;
 	this->shootTimerMax = 50.f;
 	this->shootTimer = this->shootTimerMax;
 
@@ -73,13 +81,26 @@ Enemy::Enemy(
 			break;
 
 	case MOVELEFTSHOOT:
+		this->color = Color(150, 150, 170, 255);
+		this->sprite.setScale(Vector2f(0.09f, 0.09f));
+		this->hpMax = (rand() % 5 + 1) * scalar;
+		this->hp = this->hpMax;
+		this->damageMax = (rand() % 3 + 1) * scalar;
+		this->damageMin = (rand() % 1 + 1) * scalar;
+		this->maxVelocity = rand() % 10 + 5;
+		this->nrOfBullets = 3;
+		this->shootTimerMax = 8.f;
+		this->shootTimer = 0.f;
+		break;
+
+	case MOVELEFTSHOOTPLAYER:
 		this->sprite.setScale(Vector2f(0.10f, 0.10f));
 		this->hpMax = (rand() % 3 + 1) * scalar;
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = 10 + 3;
-		this->shootTimerMax = 20.f;
+		this->maxVelocity = rand() % 10 + 3;
+		this->shootTimerMax = 50.f;
 		this->shootTimer = 0.f;
 		break;
 
@@ -95,14 +116,18 @@ Enemy::Enemy(
 	this->hpMax = hpMax;
 	this->hp = this->hpMax;
 
-	this->damageMax = damageMax;
-	this->damageMin = damageMin;
-
 	this->playerFollowNr = playerFollowNr;
 
-	this->sprite.setPosition(
-		(view.getCenter().x + view.getSize().x/2), 
-		rand() % static_cast<int>((view.getCenter().y + view.getSize().y)) + static_cast<int>((view.getCenter().y - view.getSize().y)));
+	if (randomPos)
+	{
+		this->sprite.setPosition(
+			(view.getCenter().x + view.getSize().x / 2),
+			rand() % static_cast<int>((view.getCenter().y + view.getSize().y)) + static_cast<int>((view.getCenter().y - view.getSize().y)));
+	}
+	else
+	{
+		this->sprite.setPosition(position);
+	}
 }
 
 Enemy::~Enemy()
@@ -167,48 +192,81 @@ void Enemy::Update(const float &dt, Vector2f playerPosition)
 			this->normalizedMoveDir.y * this->maxVelocity * dt * this->dtMultiplier
 		);
 
-		break;
+			break;
 
-		case MOVELEFTSHOOT:
-			this->shootTimerMax = 50.f;
+	case MOVELEFTSHOOT:
 
-			if (shootTimer < this->shootTimerMax)
-				this->shootTimer += 1.f * dt * this->dtMultiplier;
+		this->sprite.move(
+			this->moveDirection.x * this->maxVelocity * dt * this->dtMultiplier,
+			this->moveDirection.y * this->maxVelocity * dt * this->dtMultiplier
+		);
 
-			this->lookDirection.x = playerPosition.x - this->sprite.getPosition().x;
-			this->lookDirection.y = playerPosition.y - this->sprite.getPosition().y;
+		this->normalizedMoveDir = normalize(this->moveDirection, vectorLength(this->moveDirection));
 
-			this->normalizedLookDir = normalize(this->lookDirection, vectorLength(this->lookDirection));
-			
-			this->sprite.setRotation(atan2(this->normalizedLookDir.y, this->normalizedLookDir.x) * 180 / 3.14159265359 + 180);
+		//Shoot
+		if (shootTimer < this->shootTimerMax)
+			this->shootTimer += 1.f * dt * this->dtMultiplier;
 
-			this->sprite.move(
-				this->moveDirection.x * this->maxVelocity * dt * this->dtMultiplier,
-				this->moveDirection.y * this->maxVelocity * dt * this->dtMultiplier
+		if (this->shootTimer >= this->shootTimerMax && this->nrOfBullets > 0)
+		{
+			Enemy::enemyBullets.add(
+				Bullet(
+					Bullet::BULLET_CIRCULAR_RED,
+					this->sprite.getPosition(),
+					Vector2f(0.2f, 0.2f),
+					this->normalizedMoveDir,
+					this->maxVelocity,
+					this->maxVelocity+5,
+					0.2f,
+					this->getDamage()
+				)
 			);
 
-			this->normalizedMoveDir = normalize(this->moveDirection, vectorLength(this->moveDirection));
-
-			//Shoot
-			if (this->shootTimer >= this->shootTimerMax)
-			{
-				Enemy::enemyBullets.add(
-					Bullet(
-						Bullet::BULLET_CIRCULAR_RED,
-						this->sprite.getPosition(),
-						Vector2f(0.2f, 0.2f),
-						this->normalizedLookDir,
-						1.f, 
-						5,
-						0.2f,
-						this->getDamage()
-					)
-				);
-
-				this->shootTimer = 0.f;
-			}
+			this->shootTimer = 0.f;
+			this->nrOfBullets--;
+		}
 
 			break;
+
+	case MOVELEFTSHOOTPLAYER:
+
+		this->sprite.move(
+			this->moveDirection.x * this->maxVelocity * dt * this->dtMultiplier,
+			this->moveDirection.y * this->maxVelocity * dt * this->dtMultiplier
+		);
+
+		this->normalizedMoveDir = normalize(this->moveDirection, vectorLength(this->moveDirection));
+
+		//Shoot
+		if (shootTimer < this->shootTimerMax)
+			this->shootTimer += 1.f * dt * this->dtMultiplier;
+
+		this->lookDirection.x = playerPosition.x - this->sprite.getPosition().x;
+		this->lookDirection.y = playerPosition.y - this->sprite.getPosition().y;
+
+		this->normalizedLookDir = normalize(this->lookDirection, vectorLength(this->lookDirection));
+
+		this->sprite.setRotation(atan2(this->normalizedLookDir.y, this->normalizedLookDir.x) * 180 / 3.14159265359 + 180);
+
+		if (this->shootTimer >= this->shootTimerMax)
+		{
+			Enemy::enemyBullets.add(
+				Bullet(
+					Bullet::BULLET_CIRCULAR_RED,
+					this->sprite.getPosition(),
+					Vector2f(0.2f, 0.2f),
+					this->normalizedLookDir,
+					1.f, 
+					5,
+					0.2f,
+					this->getDamage()
+				)
+			);
+
+			this->shootTimer = 0.f;
+		}
+
+		break;
 
 	default:
 
@@ -220,7 +278,7 @@ void Enemy::Update(const float &dt, Vector2f playerPosition)
 	{
 		this->damageTimer -= 1.f * dt * dtMultiplier;
 
-		this->sprite.setColor(Color::Red);
+		this->sprite.setColor(damageColor);
 
 		this->sprite.move(
 			10.f * -this->normalizedMoveDir.x * this->damageTimer * dt * dtMultiplier,
@@ -228,7 +286,7 @@ void Enemy::Update(const float &dt, Vector2f playerPosition)
 		);
 	}
 	else
-		this->sprite.setColor(Color::White);
+		this->sprite.setColor(color);
 }
 
 void Enemy::Draw(RenderTarget &target)

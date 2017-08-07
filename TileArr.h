@@ -52,7 +52,7 @@ TileArr<T>::TileArr(const TileArr& obj)
 	for (size_t i = 0; i < this->cap; i++)
 	{
 		if (obj.tiles[i] != nullptr)
-			this->tiles[i] = new Tile(*obj.tiles[i]);
+			this->tiles[i] = new T(*obj.tiles[i]);
 		else
 			this->tiles[i] = nullptr;
 	}

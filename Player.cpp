@@ -113,6 +113,10 @@ Player::Player(
 	//Dt
 	this->dtMultiplier = 62.5f;
 
+	//Add number of players for coop
+	this->playerNr = Player::players;
+	Player::players++;
+
 	//Keytime
 	this->keyTimeMax = 10.f;
 	this->keyTime = this->keyTimeMax;
@@ -125,18 +129,19 @@ Player::Player(
 			* level - 12)
 		);
 
+	//Textures & Sprites
+	this->sprite.setTexture(Player::bodyTextures[0]);
+	this->sprite.setScale(0.08f, 0.08f);
+	this->sprite.setColor(Color(10, 10, 10, 255));
+	this->sprite.setPosition(Vector2f(400.f, 300.f + Player::playerNr * 150.f));
+
 	//Update positions
 	this->playerCenter.x = this->sprite.getPosition().x +
 		this->sprite.getGlobalBounds().width / 2;
 	this->playerCenter.y = this->sprite.getPosition().y +
 		this->sprite.getGlobalBounds().height / 2;
 
-	//Textures & Sprites
-	this->sprite.setTexture(Player::bodyTextures[0]);
-	this->sprite.setScale(0.08f, 0.08f);
-	this->sprite.setColor(Color(10, 10, 10, 255));
-	this->sprite.setPosition(100.f, 100.f);
-
+	//Init main gun
 	this->mainGunSprite.setTexture(Player::mainGunTextures[0]);
 	this->mainGunSprite.setOrigin(
 		this->mainGunSprite.getGlobalBounds().width / 2,
@@ -151,6 +156,7 @@ Player::Player(
 	);
 	this->mainGunSprite.setScale(0.9f, 0.9f);
 
+	//Init shield
 	this->deflectorShield.setTexture(Player::shieldTextures[0]);
 	this->deflectorShield.setOrigin(
 		this->deflectorShield.getGlobalBounds().width/2,
@@ -260,15 +266,21 @@ Player::Player(
 	//Powerups
 	this->powerupRF = false;
 	this->powerupXP = false;
-
-	//Add number of players for coop
-	this->playerNr = Player::players;
-	Player::players++;
 }
 
 Player::~Player()
 {
 
+}
+
+void Player::setPos(float x, float y)
+{
+	this->sprite.setPosition(Vector2f(x, y)); this->mainGunSprite.setPosition(Vector2f(x, y));
+	//Update positions
+	this->playerCenter.x = this->sprite.getPosition().x +
+		this->sprite.getGlobalBounds().width / 2;
+	this->playerCenter.y = this->sprite.getPosition().y +
+		this->sprite.getGlobalBounds().height / 2;
 }
 
 int Player::getDamage()const
@@ -400,7 +412,7 @@ void Player::changeAccessories(const float &dt)
 	}
 }
 
-void Player::updateAccessories(const float &dt)
+void Player::updateAccessories(const float &dt, const float scrollSpeed)
 {
 	//Set the position of gun to follow player
 	this->mainGunSprite.setPosition(
@@ -414,7 +426,9 @@ void Player::updateAccessories(const float &dt)
 	//Animate the main gun and correct it after firing
 	if (this->mainGunSprite.getPosition().x < this->playerCenter.x + 20.f)
 	{
-		this->mainGunSprite.move(5.f * dt * this->dtMultiplier 
+		this->mainGunSprite.move(
+			scrollSpeed * dt * this->dtMultiplier + 
+			5.f * dt * this->dtMultiplier 
 			+ this->currentVelocity.x * dt * this->dtMultiplier, 0.f);
 	}
 	if (this->mainGunSprite.getPosition().x > this->playerCenter.x + 20.f)
@@ -457,7 +471,7 @@ void Player::updatePowerups()
 	}
 }
 
-void Player::movement(View &view, const float &dt)
+void Player::movement(View &view, const float &dt, const float scrollSpeed)
 {
 	//Update normalized direction
 	this->normDir = normalize(this->currentVelocity, vectorLength(this->currentVelocity));
@@ -543,7 +557,9 @@ void Player::movement(View &view, const float &dt)
 	}
 
 	//Final move
-	this->sprite.move(this->currentVelocity.x* dt * this->dtMultiplier, 
+	this->sprite.move(
+		scrollSpeed * dt * this->dtMultiplier +
+		this->currentVelocity.x * dt * this->dtMultiplier, 
 		this->currentVelocity.y * dt * this->dtMultiplier);
 
 	//Update positions
@@ -857,33 +873,55 @@ std::string Player::getStatsAsString()const
 
 void Player::reset()
 {
+	//Reset sprites
+	this->sprite.setPosition(Vector2f(400.f, 300.f + Player::playerNr * 150.f));
+
+	//Reset stats
 	this->hpMax = 10;
+	this->hpAdded = 10;
 	this->hp = this->hpMax;
-	this->sprite.setPosition(Vector2f(100.f, 100.f));
-	this->bullets.clear();
-	this->upgradesAcquired.clear();
-	this->setGunLevel(Player::LASER_NORMAL);
 	this->wiring = 0;
 	this->cooling = 0;
 	this->power = 0;
 	this->plating = 0;
+	this->level = 1;
+	this->exp = 0;
+	this->expNext = 0;
+	this->statPoints = 0;
+	this->score = 0;
+	this->updateStats();
+
+	//Reset physics and movement
+	this->currentVelocity.x = 0;
+	this->currentVelocity.y = 0;
+
+	//Reset arrays
+	this->bullets.clear();
+	this->upgradesAcquired.clear();
+
+	//Reset weapon
+	this->setGunLevel(Player::LASER_NORMAL);
+	this->currentWeapon = LASER_NORMAL;
+
+	//Reset upgrades
 	this->dualMissiles01 = false;
 	this->dualMissiles02 = false;
 	this->shield = false;
 	this->piercingShot = false;
-	this->currentVelocity.x = 0;
-	this->currentVelocity.y = 0;
-	this->level = 1;
-	this->exp = 0;
-	this->expNext = 20;
-	this->currentWeapon = LASER_NORMAL;
-	this->statPoints = 0;
+
+	//Reseet powerups
+	this->powerupRF = false;
+	this->powerupXP = false;
+
+	//Reset timers
 	this->shootTimer = this->shootTimerMax;
 	this->damageTimer = this->damageTimerMax;
-	this->score = 0;
+	this->powerupTimer = 0;
+	this->shieldTimer = this->shieldTimerMax;
+	this->shieldRechargeTimer = this->shieldRechargeTimerMax;
 }
 
-void Player::update(View &view, const float &dt)
+void Player::update(View &view, const float &dt, const float scrollSpeed)
 {
 	//Update timers
 	if (this->powerupRF)
@@ -912,9 +950,9 @@ void Player::update(View &view, const float &dt)
 	if (this->powerupTimer > 0.f)
 		this->powerupTimer -= 1.f * dt * this->dtMultiplier;
 
-	this->movement(view, dt);
+	this->movement(view, dt, scrollSpeed);
 	this->changeAccessories(dt);
-	this->updateAccessories(dt);
+	this->updateAccessories(dt, scrollSpeed);
 	this->updatePowerups();
 	this->combat(dt);
 }

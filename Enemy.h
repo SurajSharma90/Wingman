@@ -1,5 +1,6 @@
 #pragma once
 
+#include"Wingman.h"
 #include"Bullet.h"
 
 class Enemy
@@ -8,6 +9,8 @@ private:
 	float dtMultiplier;
 
 	Sprite sprite;
+	Color color;
+	Color damageColor;
 	Vector2f moveDirection;
 	Vector2f normalizedMoveDir;
 	Vector2f lookDirection;
@@ -17,6 +20,7 @@ private:
 	float damageTimerMax;
 	float damageTimer;
 
+	int nrOfBullets;
 	float shootTimerMax;
 	float shootTimer;
 
@@ -31,6 +35,7 @@ private:
 public:
 	Enemy(
 		View& view,
+		bool randomPos,
 		Vector2f position, 
 		Vector2f direction, 
 		int type, 
@@ -76,10 +81,14 @@ public:
 
 	static void initTextures();
 
+	static int nrOfTypes;
+
+	//CHANGE NR OF ENEMY TYPES AFTER ADDING!
 	enum eTypes { 
 		MOVELEFT = 0, 
-		FOLLOW, 
-		MOVELEFTSHOOT, 
+		FOLLOW,
+		MOVELEFTSHOOT,
+		MOVELEFTSHOOTPLAYER, 
 		FOLLOWFAST, 
 		FOLLOWSHOOT, 
 		FOLLOWFASTSHOOT };

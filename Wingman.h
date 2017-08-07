@@ -21,6 +21,9 @@ public:
 
 	//Statics
 	static int gridSize;
+	static int backgroundSize;
 	static Color backgroundColor;
+
+	static void initTextures();
 };
 

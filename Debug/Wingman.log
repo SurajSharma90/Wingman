@@ -1,50 +1,5 @@
-﻿  Stage.cpp
-h:\wingman\wingman\stage.cpp(188): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-h:\wingman\wingman\stage.cpp(213): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-h:\wingman\wingman\stage.cpp(239): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(242): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(245): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(248): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(251): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(254): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(257): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(260): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(282): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(285): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(288): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(291): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(294): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(297): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\stage.cpp(300): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-h:\wingman\wingman\stage.cpp(303): warning C4018: '>=': signed/unsigned mismatch
-  Game.cpp
-h:\wingman\wingman\game.cpp(75): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(251): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(254): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(257): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(268): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(242): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(247): warning C4996: 'sf::Text::setColor': was declared deprecated
-  h:\wingman\wingman\include\sfml\graphics\text.hpp(177): note: see declaration of 'sf::Text::setColor'
-h:\wingman\wingman\game.cpp(450): warning C4018: '>=': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(494): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(503): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
-h:\wingman\wingman\game.cpp(608): warning C4018: '<': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(625): warning C4018: '<': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(635): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(658): warning C4018: '<': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(668): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-h:\wingman\wingman\game.cpp(988): warning C4018: '<': signed/unsigned mismatch
-h:\wingman\wingman\game.cpp(998): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-h:\wingman\wingman\darr.h(67): warning C4018: '>=': signed/unsigned mismatch
-  h:\wingman\wingman\darr.h(66): note: while compiling class template member function 'Bullet &dArr<Bullet>::operator [](int)'
-  h:\wingman\wingman\game.cpp(951): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
-  h:\wingman\wingman\player.h(38): note: see reference to class template instantiation 'dArr<Bullet>' being compiled
-h:\wingman\wingman\darr.h(135): warning C4018: '>=': signed/unsigned mismatch
-  h:\wingman\wingman\darr.h(134): note: while compiling class template member function 'void dArr<Bullet>::remove(int)'
-  h:\wingman\wingman\game.cpp(1035): note: see reference to function template instantiation 'void dArr<Bullet>::remove(int)' being compiled
-  Generating Code...
-h:\wingman\wingman\player.h(134): warning C4172: returning address of local variable or temporary
+﻿  main.cpp
+h:\wingman\wingman\enemyspawner.h(28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+h:\wingman\wingman\main.cpp(8): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Debug\Wingman.pdb (Full PDB)

@@ -5,6 +5,7 @@ Game::Game(RenderWindow *window)
 	this->window = window;
 	this->window->setFramerateLimit(300);
 	this->fullscreen = false;
+	this->mode = Mode::Regular;
 	this->dtMultiplier = 62.5f;
 	this->scoreMultiplier = 1;
 	this->score = 0;
@@ -66,6 +67,16 @@ void Game::pauseGame()
 	}
 }
 
+void Game::initRT()
+{
+	this->mainRenderTexture.create(
+		this->window->getSize().x,
+		this->window->getSize().y
+	);
+
+	this->mainRenderSprite.setTexture(this->mainRenderTexture.getTexture());
+}
+
 void Game::initView()
 {
 	this->mainView.setSize(Vector2f(this->window->getSize()));
@@ -77,9 +88,11 @@ void Game::initView()
 
 void Game::initTextures()
 {
-	Texture temp;
+	//Buttons
+	WButton::initTextures();
 
 	//Map
+	Stage::initTextures();
 	Tile::initTextures();
 
 	//Bullet
@@ -189,18 +202,18 @@ void Game::initialize()
 	//Init players
 	this->players.add(Player());
 
-	//this->players.add(Player(
-	//	Keyboard::Numpad8,
-	//	Keyboard::Numpad5,
-	//	Keyboard::Numpad4,
-	//	Keyboard::Numpad6,
-	//	Keyboard::RControl,
-	//	Keyboard::RShift,
-	//	Keyboard::Numpad7,
-	//	Keyboard::Numpad1,
-	//	Keyboard::Numpad2,
-	//	Keyboard::Numpad3,
-	//	Keyboard::Numpad0));
+	/*this->players.add(Player(
+		Keyboard::Numpad8,
+		Keyboard::Numpad5,
+		Keyboard::Numpad4,
+		Keyboard::Numpad6,
+		Keyboard::RControl,
+		Keyboard::RShift,
+		Keyboard::Numpad7,
+		Keyboard::Numpad1,
+		Keyboard::Numpad2,
+		Keyboard::Numpad3,
+		Keyboard::Numpad0));*/
 
 	//this->players.add(Player(
 	//	Keyboard::I,
@@ -228,9 +241,9 @@ void Game::initialize()
 	this->initUI();
 }
 
-void Game::updateView()
+void Game::updateView(const float &dt)
 {
-	this->mainView.move(this->stage->getScrollSpeed(), 0.f);
+	this->mainView.move(this->stage->getScrollSpeed() * dt * this->dtMultiplier, 0.f);
 }
 
 void Game::restartUpdate()
@@ -251,10 +264,23 @@ void Game::restartUpdate()
 		this->bossEncounter = false;
 		this->enemySpawnTimerMax = 35.f; //ALSO IN CONSTUCTOR!
 		this->scoreTimer.restart();
+		
+		//Reset stage
+		this->mainView.setCenter(Vector2f(
+			this->window->getSize().x / 2,
+			this->window->getSize().y / 2
+		));
+		this->stage->reset(this->mainView);
+
+		//Clear arrays
 		this->enemies.clear();
 		this->upgrades.clear();
 		this->pickups.clear();
 		this->bosses.clear();
+		this->powerups.clear();
+		this->textTags.clear();
+		this->particles.clear();
+		
 	}
 }
 
@@ -452,7 +478,10 @@ void Game::playerUpdate(const float &dt)
 		if (this->players[i].isAlive())
 		{
 			//UPDATE PLAYERS
-			this->players[i].update(this->mainView, dt);
+			this->players[i].update(
+				this->mainView, 
+				dt, 
+				stage->getScrollSpeed());
 
 			//Bullets update
 			this->playerBulletUpdate(dt, i);
@@ -751,19 +780,7 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 void Game::enemyUpdate(const float &dt)
 {
 	//Spawn enemies
-	if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
-	{
-		this->enemies.add(Enemy(
-			this->mainView,
-			Vector2f(0.f, 0.f),
-			Vector2f(-1.f, 0.f),
-			rand() % 3,
-			this->players[(rand() % playersAlive)].getLevel(),
-			rand() % this->playersAlive)
-		);
-
-		this->enemySpawnTimer = 0; //Reset timer
-	}
+	this->enemySpawnUpdate(dt);
 
 	//Update enemies
 	bool enemyRemoved = false;
@@ -823,6 +840,102 @@ void Game::enemyUpdate(const float &dt)
 	}
 
 	this->enemyBulletUpdate(dt);
+}
+
+void Game::enemySpawnUpdate(const float &dt)
+{
+	//Spawn enemies
+	if (this->mode == Mode::Survival)
+	{
+		if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
+		{
+			this->enemies.add(Enemy(
+				this->mainView,
+				true,
+				Vector2f(0.f, 0.f),
+				Vector2f(-1.f, 0.f),
+				rand() % Enemy::nrOfTypes,
+				this->players[(rand() % playersAlive)].getLevel(),
+				rand() % this->playersAlive)
+			);
+
+			this->enemySpawnTimer = 0; //Reset timer
+		}
+	}
+	else if (this->mode == Mode::Regular)
+	{
+		//Index calculations
+		this->fromCol = (mainView.getCenter().x - mainView.getSize().x / 2) / Wingman::gridSize;
+		if (fromCol <= 0)
+			fromCol = 0;
+		if (fromCol >= this->stage->getSizeX())
+			fromCol = this->stage->getSizeX();
+
+		this->toCol = (mainView.getCenter().x + mainView.getSize().x / 2) / Wingman::gridSize + 1;
+		if (toCol <= 0)
+			toCol = 0;
+		if (toCol >= this->stage->getSizeX())
+			toCol = this->stage->getSizeX();
+
+		this->fromRow = (mainView.getCenter().y - mainView.getSize().y / 2) / Wingman::gridSize;
+		if (fromRow <= 0)
+			fromRow = 0;
+		if (fromRow >= this->stage->getSizeY())
+			fromRow = this->stage->getSizeY();
+
+		this->toRow = (mainView.getCenter().y + mainView.getSize().y / 2) / Wingman::gridSize + 1;
+		if (toRow <= 0)
+			toRow = 0;
+		if (toRow >= this->stage->getSizeY())
+			toRow = this->stage->getSizeY();
+		
+		for (size_t i = fromCol; i < toCol; i++)
+		{
+			for (size_t j = fromRow; j < toRow; j++)
+			{
+				if (!this->stage->getEnemySpawners()[i].isNull(j) 
+					&& this->stage->getEnemySpawners()[i][j].getPos().x < this->mainView.getCenter().x + this->mainView.getSize().x / 2
+					&& !this->stage->getEnemySpawners()[i][j].isUsed()
+					)
+					
+				{
+					int eType = 0;
+					int nrOfE = 0;
+
+					if (this->stage->getEnemySpawners()[i][j].getType() < 0)
+					{
+						eType = rand() % Enemy::nrOfTypes;
+					}
+					else
+						eType = this->stage->getEnemySpawners()[i][j].getType();
+
+					if (this->stage->getEnemySpawners()[i][j].getNrOfEnemies() < 0)
+					{
+						nrOfE = rand() % 10 + 1;
+					}
+					else
+						nrOfE = this->stage->getEnemySpawners()[i][j].getNrOfEnemies();
+					
+					for (size_t k = 0; k < nrOfE; k++)
+					{
+						std::cout << eType << "\n" << this->players[(rand() % playersAlive)].getLevel() << "\n";
+						this->enemies.add(Enemy(
+							this->mainView,
+							this->stage->getEnemySpawners()[i][j].getRandomSpawnPos(),
+							this->stage->getEnemySpawners()[i][j].getPos(),
+							Vector2f(-1.f, 0.f),
+							eType,
+							this->players[(rand() % playersAlive)].getLevel(),
+							rand() % this->playersAlive)
+						);
+
+						this->stage->getEnemySpawners()[i][j].setUsed();
+				
+					}	
+				}
+			}
+		}
+	}	
 }
 
 void Game::enemyBulletUpdate(const float &dt)
@@ -1270,7 +1383,7 @@ void Game::update(const float &dt)
 		this->updateTimersUnpaused(dt);
 
 		//View
-		this->updateView();
+		this->updateView(dt);
 
 		//MAKE GAME HARDER WITH TIME
 		this->updateDifficulty();
@@ -1378,7 +1491,8 @@ void Game::drawMap()
 	stage->draw(
 		*this->window, 
 		this->mainView,
-		false
+		false,
+		this->font
 	);
 }
 

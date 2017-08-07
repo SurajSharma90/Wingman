@@ -4,6 +4,37 @@
 //rect rect rect rect pos pos bool bool
 //texturerect, position, collider, damage
 
+//Static
+dArr<Texture> Stage::backgroundTextures;
+int Stage::nrOfBackgrounds;
+
+void Stage::initTextures()
+{
+	Texture temp;
+	std::string tempStr;
+
+	std::ifstream in;
+
+	in.open("Textures/Backgrounds/backgrounds.txt");
+
+	if (in.is_open())
+	{
+		while (std::getline(in, tempStr))
+		{ 
+			temp.loadFromFile(tempStr.c_str());
+			temp.setRepeated(true);
+			Stage::backgroundTextures.add(Texture(temp));
+			tempStr.clear();
+		}
+	}
+	else
+		std::cout << "COULD NOT OPEN BACKGROUNDS FILE, initTextures() STAGE" << "\n\n";
+
+	in.close();
+
+	Stage::nrOfBackgrounds = Stage::backgroundTextures.size();
+}
+
 Stage::Stage(unsigned long sizeX, unsigned long sizeY)
 	:stageSizeX(sizeX),
 	stageSizeY(sizeY),
@@ -17,14 +48,19 @@ Stage::Stage(unsigned long sizeX, unsigned long sizeY)
 	this->fromRow = 0;
 	this->toRow = 0;
 	
-	this->scrollSpeed = 0.1f;
+	this->scrollSpeed = 2.f;
 
 	for (unsigned i = 0; i < this->stageSizeX; i++) //Col
 	{
 		this->tiles.push(TileArr<Tile>(stageSizeY), i);
 		this->backgroundTiles.push(TileArr<Tile>(stageSizeY), i);
-		this->enemySpawners.push(TileArr<Tile>(stageSizeY), i);
+		this->enemySpawners.push(TileArr<EnemySpawner>(stageSizeY), i);
 	}
+
+	this->backgroundIndex = 0;
+	this->background.setSize(Vector2f(Wingman::backgroundSize, Wingman::backgroundSize));
+	this->background.setTextureRect(IntRect(0, 0, Wingman::backgroundSize, Wingman::backgroundSize));
+	this->background.setTexture(&Stage::backgroundTextures[this->backgroundIndex]);
 }
 
 Stage::~Stage()
@@ -32,19 +68,19 @@ Stage::~Stage()
 
 }
 
-void Stage::addTile(const Tile tile, unsigned row, unsigned col, bool background)
+void Stage::addTile(const Tile tile, unsigned row, unsigned col, int type)
 {
 	if (row >= this->stageSizeX || col >= this->stageSizeY)
 		throw("OUT OF BOUNDS STAGE ADDTILE");
 
-	if (!background)
+	if (type == tileType::regularTile)
 	{
 		if (this->tiles[row].isNull(col))
 			this->tiles[row].push(tile, col);
 		else
 			std::cout << "Aleady a tile in that position!" << "\n";
 	}
-	else
+	else if(type == tileType::backgroundTile)
 	{
 		if (this->backgroundTiles[row].isNull(col))
 		{
@@ -77,6 +113,63 @@ void Stage::removeTile(unsigned row, unsigned col, bool background)
 	}
 }
 
+void Stage::addEnemySpawner(const EnemySpawner es, unsigned row, unsigned col)
+{
+	if (this->enemySpawners[row].isNull(col))
+	{
+		this->enemySpawners[row].push(es, col);
+	}
+	else
+		std::cout << "Aleady a enemyspawner in that position!" << "\n";
+}
+
+void Stage::removeEnemySpawner(unsigned row, unsigned col)
+{
+	if (row >= this->stageSizeX || col >= this->stageSizeY)
+		throw("OUT OF BOUNDS STAGE REMOVEENEMYSPAWNER");
+
+	if (!this->enemySpawners[row].isNull(col))
+		this->enemySpawners[row].remove(col);
+	else
+		std::cout << "No enemy spawner in that position!" << "\n";	
+}
+
+void Stage::reset(View &view)
+{
+	//Reset background
+	this->backgrounds.clear();
+	this->background.setPosition(
+		Vector2f(
+			view.getCenter().x - view.getSize().x / 2, 
+			view.getCenter().y - view.getSize().y / 2
+		)
+	);
+	this->backgrounds.add(this->background);
+
+	//Reset enemyspawners
+	for (size_t i = 0; i < this->stageSizeX; i++)
+	{
+		for (size_t k = 0; k < this->stageSizeY; k++)
+		{
+			if (!this->enemySpawners[i].isNull(k))
+				this->enemySpawners[i][k].setUnused();
+		}
+	}
+}
+
+void Stage::setBackground(const int index, const int width, const int height)
+{
+	if (index < 0 || index >= Stage::nrOfBackgrounds)
+		std::cout << "NO SUCH BACKGROUND IN ARRAY! setBaackground Stage" << "\n\n";
+	else
+	{
+		this->backgroundIndex = index;
+		this->background.setSize(Vector2f(width, height));
+		this->background.setTextureRect(IntRect(0, 0, width, height));
+		this->background.setTexture(&Stage::backgroundTextures[index]);
+	}
+}
+
 void Stage::saveStage(std::string fileName)
 {
 	std::ofstream out;
@@ -89,8 +182,10 @@ void Stage::saveStage(std::string fileName)
 		out << std::to_string(this->stageSizeX) << " ";
 		out << std::to_string(this->stageSizeY) << " ";
 
-		//Save background path
-		out << "NONE ";
+		//Save background
+		out << this->backgroundIndex 
+			<< " " << static_cast<int>(this->background.getGlobalBounds().width) 
+			<< " " << static_cast<int>(this->background.getGlobalBounds().height);
 
 		out << "\n"; 
 
@@ -115,6 +210,18 @@ void Stage::saveStage(std::string fileName)
 					out << this->backgroundTiles[i][k].getAsString() << " ";
 			}
 		}
+
+		out << "\n";
+
+		for (size_t i = 0; i < this->stageSizeX; i++)
+		{
+			//Regular tiles
+			for (size_t k = 0; k < this->stageSizeY; k++)
+			{
+				if (!this->enemySpawners[i].isNull(k))
+					out << this->enemySpawners[i][k].getAsString() << " ";
+			}
+		}
 	}
 	else
 		std::cout << "Could not open map file " << fileName << "\n";
@@ -130,9 +237,16 @@ bool Stage::loadStage(std::string fileName, View &view)
 	std::stringstream ss;
 	std::string line = "";
 
+	//Map
 	unsigned sizeX = 0;
 	unsigned sizeY = 0;
-	std::string backgroundPath;
+
+	//Background
+	int bgIndex = 0;
+	int bgWidth = 0;
+	int bgHeight = 0;
+
+	//Tiles
 	int rectLeft = 0;
 	int rectTop = 0;
 	int rectWidth = 0;
@@ -141,7 +255,12 @@ bool Stage::loadStage(std::string fileName, View &view)
 	int gridPosY = 0;
 	bool isCollider = 0;
 	bool isDamaging = 0;
-	int damage = 0;
+
+	//EnemySpawner
+	bool randomSpawnPos = 0;
+	int type = 0;
+	int levelInterval = 0;
+	int nrOfEnemies = 0;
 
 	//Open file
 	in.open(fileName);
@@ -152,10 +271,16 @@ bool Stage::loadStage(std::string fileName, View &view)
 		std::getline(in, line);
 		ss.str(line);
 
-		ss >> sizeX >> sizeY >> backgroundPath;
+		ss >> sizeX >> sizeY >> bgIndex >> bgWidth >> bgHeight;
 
 		this->stageSizeX = sizeX;
 		this->stageSizeY = sizeY;
+
+		this->backgroundIndex = bgIndex;
+		this->background.setSize(Vector2f(bgWidth, bgHeight));
+		this->background.setTextureRect(IntRect(0, 0, bgWidth, bgHeight));
+		this->background.setTexture(&Stage::backgroundTextures[bgIndex]);
+		this->backgrounds.add(background);
 
 		//Clear old stage
 		this->tiles.resizeClear(this->stageSizeX);
@@ -166,7 +291,7 @@ bool Stage::loadStage(std::string fileName, View &view)
 		{
 			this->tiles.push(TileArr<Tile>(stageSizeY), i);
 			this->backgroundTiles.push(TileArr<Tile>(stageSizeY), i);
-			this->enemySpawners.push(TileArr<Tile>(stageSizeY), i);
+			this->enemySpawners.push(TileArr<EnemySpawner>(stageSizeY), i);
 		}
 
 		line.clear();
@@ -182,7 +307,6 @@ bool Stage::loadStage(std::string fileName, View &view)
 			>> rectWidth >> rectHeight
 			>> gridPosX >> gridPosY
 			>> isCollider >> isDamaging
-			>> damage
 			)
 		{
 			this->tiles[gridPosX].push(
@@ -207,7 +331,6 @@ bool Stage::loadStage(std::string fileName, View &view)
 			>> rectWidth >> rectHeight
 			>> gridPosX >> gridPosY
 			>> isCollider >> isDamaging
-			>> damage
 			)
 		{
 			this->backgroundTiles[gridPosX].push(
@@ -223,20 +346,34 @@ bool Stage::loadStage(std::string fileName, View &view)
 		}
 
 		//Enemy Spawners
-		//line.clear();
-		//ss.clear();
 
-		//std::getline(in, line);
-		//ss.str(line);
+		line.clear();
+		ss.clear();
 
-		//while (
-	
-		//	)
-		//{
-		//	this->enemySpawners[gridPosX].push(
+		std::getline(in, line);
+		ss.str(line);
 
-		//	);
-		//}
+		while (
+			ss 
+			>> gridPosX 
+			>> gridPosY
+			>> randomSpawnPos
+			>> type 
+			>> levelInterval
+			>> nrOfEnemies 
+			)
+		{
+			this->enemySpawners[gridPosX].push(
+				EnemySpawner(
+					Vector2i(gridPosX, gridPosY),
+					randomSpawnPos,
+					type,
+					levelInterval,
+					nrOfEnemies
+					),
+				gridPosY
+			);
+		}
 
 		loadSuccess = true;
 	}
@@ -248,9 +385,55 @@ bool Stage::loadStage(std::string fileName, View &view)
 	return loadSuccess;
 }
 
-void Stage::updateBackground(const float &dt, unsigned row, unsigned col)
+void Stage::updateBackground(const float &dt, View &view)
 {
+	bool bgRemoved = false;
+	for (size_t i = 0; i < this->backgrounds.size() && !bgRemoved; i++)
+	{
+		this->backgrounds[i].move(this->scrollSpeed * dt * this->dtMultiplier * 0.8f, 0.f);
+		
+		//When Background top-right is less or equal to view left side
+		//Remove background
+		if (
+			this->backgrounds.size() < 3 
+			&& this->backgrounds[i].getPosition().x
+			+ this->backgrounds[i].getGlobalBounds().width
+			<=
+			view.getCenter().x + view.getSize().x / 2
+			)
+		{
+			this->background.setPosition(
+				this->backgrounds[i].getPosition().x 
+				+ this->backgrounds[i].getGlobalBounds().width, 
+				this->background.getPosition().y);
 
+			this->backgrounds.add(background);
+		}	
+		else if (
+			this->backgrounds[i].getPosition().x
+			+ this->backgrounds[i].getGlobalBounds().width
+			<=
+			view.getCenter().x - view.getSize().x / 2
+			)
+		{
+			bgRemoved = true;
+		}
+
+		if (bgRemoved)
+			this->backgrounds.remove(i);
+	}	
+}
+
+void Stage::setBackgroundSize(float width, float height)
+{
+	if (width < Wingman::backgroundSize || height < Wingman::backgroundSize)
+	{
+		std::cout << "ERROR IN setBackGroundSize, WIDTH OR HRIGHT TOO SMALL!" << "\n\n";
+		width = Wingman::backgroundSize;
+		height = Wingman::backgroundSize;
+	}
+
+	this->background.setSize(Vector2f(width, height));
 }
 
 void Stage::update(const float &dt, View &view, bool editor)
@@ -295,13 +478,14 @@ void Stage::update(const float &dt, View &view, bool editor)
 
 	//		if (!this->enemySpawners[i].isNull(k))
 	//			this->enemySpawners[i][k].update(dt);
-
-	//		this->updateBackground(dt, i, k);
 	//	}
 	//}
+
+	if(!editor)
+		this->updateBackground(dt, view);
 }
 
-void Stage::draw(RenderTarget &target, View &view, bool editor)
+void Stage::draw(RenderTarget &target, View &view, bool editor, Font &font)
 {
 	//Index calculations
 	this->fromCol = (view.getCenter().x - view.getSize().x / 2)/Wingman::gridSize;
@@ -330,6 +514,19 @@ void Stage::draw(RenderTarget &target, View &view, bool editor)
 
 	//std::cout << fromCol << " " << toCol << " " << fromRow << " " << toRow << "\n";
 
+	//Background
+	if (editor)
+	{
+		target.draw(this->background);
+	}
+	else
+	{
+		for (size_t i = 0; i < this->backgrounds.size(); i++)
+		{
+			target.draw(this->backgrounds[i]);
+		}
+	}
+
 	//Tiles
 	for (int i = fromCol; i < toCol; i++)
 	{
@@ -341,8 +538,8 @@ void Stage::draw(RenderTarget &target, View &view, bool editor)
 			if(!this->tiles[i].isNull(k))
 				this->tiles[i][k].draw(target);
 
-			if (!this->enemySpawners[i].isNull(k))
-				this->enemySpawners[i][k].draw(target);
+			if (!this->enemySpawners[i].isNull(k) && editor)
+				this->enemySpawners[i][k].draw(target, font);
 		}
 	}
 }

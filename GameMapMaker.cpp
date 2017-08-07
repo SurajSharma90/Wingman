@@ -5,8 +5,17 @@ GameMapMaker::GameMapMaker(RenderWindow *window)
 	this->window = window;
 	this->window->setFramerateLimit(300);
 	this->fullscreen = false;
+	this->toolSelect = Stage::tileType::regularTile;
 	this->dtMultiplier = 62.5f;
-	this->backgroundTile = false;
+	this->backgroundIndex = 0;
+	this->backgroundWidth = Wingman::backgroundSize;
+	this->backgroundHeight = Wingman::backgroundSize;
+
+	//Variables for enemySpawner
+	this->enemyRandomSpawnPos = false;
+	enemyType = 0;
+	enemyLevelInterval = 0;
+	nrOfEnemies = 0;
 
 	this->stage = nullptr;
 
@@ -158,6 +167,128 @@ void GameMapMaker::loadStage()
 	}
 }
 
+void GameMapMaker::setBackground()
+{
+	int choice = 0;
+	
+	std::cout << "Background select" << "\n";
+	
+	std::cout << "Background index(" << "0 - " << Stage::nrOfBackgrounds << ")";
+	std::cin >> choice;
+
+	while (std::cin.fail() || choice >= Stage::nrOfBackgrounds)
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Background index(" << "0 - " << Stage::nrOfBackgrounds << ")";
+		std::cin >> choice;
+	}
+
+	if (choice >= 0)
+	{
+		this->backgroundIndex = choice;
+	}
+	else
+		std::cout << "NO BACKGROUND SELECTED!" << "\n\n";
+
+	std::cout << "Background Size X";
+	std::cin >> choice;
+
+	while (std::cin.fail() || choice < Wingman::backgroundSize)
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Background Size X";
+		std::cin >> choice;
+	}
+	
+	this->backgroundWidth = choice;
+
+	std::cout << "Background Size Y";
+	std::cin >> choice;
+
+	while (std::cin.fail() || choice < Wingman::backgroundSize)
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Background Size Y";
+		std::cin >> choice;
+	}
+
+	this->backgroundHeight = choice;
+
+	this->stage->setBackground(this->backgroundIndex, this->backgroundWidth, this->backgroundHeight);
+
+	std::cin.ignore(100, '\n');
+	std::cout << "\n";
+}
+
+void GameMapMaker::setEnemySpawner()
+{
+	std::cout << "SET ENEMY SPAWNER" << "\n\n";
+	
+	std::cout << "Random pos:";
+	std::cin >> this->enemyRandomSpawnPos;
+
+	while (std::cin.fail() || this->enemyRandomSpawnPos < 0 || this->enemyRandomSpawnPos > 1)
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Random pos:";
+		std::cin >> this->enemyRandomSpawnPos;
+	}
+
+	std::cout << "Type:"; 
+	std::cin >> this->enemyType;
+
+	while (std::cin.fail())
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Type:";
+		std::cin >> this->enemyType;
+	}
+
+	std::cout << "Level Interval:";
+	std::cin >> this->enemyLevelInterval;
+
+	while (std::cin.fail())
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Level Interval:";
+		std::cin >> this->enemyLevelInterval;
+	}
+
+	std::cout << "Number of enemies:";
+	std::cin >> this->nrOfEnemies;
+
+	while (std::cin.fail())
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Number of enemies:";
+		std::cin >> this->nrOfEnemies;
+	}
+
+	std::cin.clear();
+	std::cin.ignore(100, '\n');
+}
+
 void GameMapMaker::initView()
 {
 	this->mainView.setSize(Vector2f(this->window->getSize()));
@@ -169,8 +300,35 @@ void GameMapMaker::initView()
 
 void GameMapMaker::initTextures()
 {
-	//Map
-	Tile::initTextures();
+
+}
+
+void GameMapMaker::initText()
+{
+	//Init fonts
+	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
+
+	//Selector text
+	this->selectorText.setString("NONE");
+	this->selectorText.setFont(this->font);
+	this->selectorText.setCharacterSize(14);
+	this->selectorText.setColor(Color::White);
+	this->selectorText.setPosition(Vector2f(this->mousePosWindow));
+
+	//Enemyspawner text
+	this->enemySpawnerText.setString("NONE");
+	this->enemySpawnerText.setFont(this->font);
+	this->enemySpawnerText.setCharacterSize(14);
+	this->enemySpawnerText.setColor(Color::White);
+	this->enemySpawnerText.setPosition(Vector2f(this->mousePosWindow));
+}
+
+void GameMapMaker::initButtons()
+{
+	WButton temp(this->font, "EnemySpawnerSelect", 12, Vector2f(600, 600), 0);
+
+	//Add enemyspawnerselect button
+	this->buttons.add(temp);
 }
 
 void GameMapMaker::initUI()
@@ -198,14 +356,17 @@ void GameMapMaker::initialize()
 	//Init view
 	this->initView();
 
-	//Init fonts
-	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
-
 	//INit textures
 	this->initTextures();
 
 	//Init map
 	this->initMap();
+
+	//Init text
+	this->initText();
+
+	//Init buttons
+	this->initButtons();
 
 	//Init UI
 	this->initUI();
@@ -308,6 +469,7 @@ void GameMapMaker::updateControls()
 		this->updateAddRemoveTiles();
 	}
 
+	//New map
 	if (Keyboard::isKeyPressed(Keyboard::N) 
 		&& Keyboard::isKeyPressed(Keyboard::LControl)
 		&& this->keyTime >= this->keyTimeMax)
@@ -317,18 +479,51 @@ void GameMapMaker::updateControls()
 		this->keyTime = 0.f;
 	}
 
+	//Select background tile drawing
 	if (Keyboard::isKeyPressed(Keyboard::B)
 		&& Keyboard::isKeyPressed(Keyboard::LControl)
 		&& this->keyTime >= this->keyTimeMax)
 	{
-		if (!this->backgroundTile)
-			this->backgroundTile = true;
+		if (this->toolSelect == Stage::tileType::backgroundTile)
+			this->toolSelect = Stage::tileType::regularTile;
 		else
-			this->backgroundTile = false;
+			this->toolSelect = Stage::tileType::backgroundTile;
 
 		this->keyTime = 0.f;
 	}
 
+	//Select background and background size
+	if (Keyboard::isKeyPressed(Keyboard::G)
+		&& Keyboard::isKeyPressed(Keyboard::LControl)
+		&& this->keyTime >= this->keyTimeMax)
+	{
+		this->setBackground();
+
+		this->keyTime = 0.f;
+	}
+
+	//SET enemyspawner
+	if (Keyboard::isKeyPressed(Keyboard::E)
+		&& Keyboard::isKeyPressed(Keyboard::LControl)
+		&& Keyboard::isKeyPressed(Keyboard::LShift)
+		&& this->keyTime >= this->keyTimeMax)
+	{
+		this->setEnemySpawner();
+
+		this->keyTime = 0.f;
+	}
+
+	//Select enemyspawner
+	if (Keyboard::isKeyPressed(Keyboard::E)
+		&& Keyboard::isKeyPressed(Keyboard::LControl)
+		&& this->keyTime >= this->keyTimeMax)
+	{
+		this->toolSelect = Stage::tileType::enemySpawner;
+
+		this->keyTime = 0.f;
+	}
+
+	//Save stage
 	if (Keyboard::isKeyPressed(Keyboard::LControl) 
 		&& Keyboard::isKeyPressed(Keyboard::S)
 		&& this->keyTime >= this->keyTimeMax)
@@ -338,6 +533,7 @@ void GameMapMaker::updateControls()
 		this->keyTime = 0.f;
 	}
 
+	//Load stage
 	if (Keyboard::isKeyPressed(Keyboard::LControl)
 		&& Keyboard::isKeyPressed(Keyboard::L)
 		&& this->keyTime >= this->keyTimeMax)
@@ -352,30 +548,96 @@ void GameMapMaker::updateAddRemoveTiles()
 {
 	if (Mouse::isButtonPressed(Mouse::Left))
 	{
-		this->stage->addTile(
-			Tile(
-				IntRect(
-					this->textureX,
-					this->textureY,
-					Wingman::gridSize,
-					Wingman::gridSize),
-				Vector2f(
-					this->mousePosGrid.x * Wingman::gridSize,
-					this->mousePosGrid.y * Wingman::gridSize),
-				false,
-				false),
-			this->mousePosGrid.x,
-			this->mousePosGrid.y,
-			this->backgroundTile
-		);
+		if (this->toolSelect == Stage::tileType::regularTile
+			|| this->toolSelect == Stage::tileType::backgroundTile)
+		{
+			this->stage->addTile(
+				Tile(
+					IntRect(
+						this->textureX,
+						this->textureY,
+						Wingman::gridSize,
+						Wingman::gridSize),
+					Vector2f(
+						this->mousePosGrid.x * Wingman::gridSize,
+						this->mousePosGrid.y * Wingman::gridSize),
+					false,
+					false),
+				this->mousePosGrid.x,
+				this->mousePosGrid.y,
+				this->toolSelect
+			);
+		}
+		else if (this->toolSelect == Stage::tileType::enemySpawner)
+		{
+			this->enemyPosGrid = this->mousePosGrid;
+			this->stage->addEnemySpawner(
+				EnemySpawner(
+					this->enemyPosGrid,
+					this->enemyRandomSpawnPos,
+					this->enemyType,
+					this->enemyLevelInterval,
+					this->nrOfEnemies
+				),
+				this->mousePosGrid.x,
+				this->mousePosGrid.y
+			);
+		}
 	}
 	else if (Mouse::isButtonPressed(Mouse::Right))
 	{
-		this->stage->removeTile(
-			this->mousePosGrid.x, 
-			this->mousePosGrid.y, 
-			this->backgroundTile
-		);
+		if (this->toolSelect == Stage::tileType::regularTile
+			|| this->toolSelect == Stage::tileType::backgroundTile)
+		{
+			this->stage->removeTile(
+				this->mousePosGrid.x,
+				this->mousePosGrid.y,
+				this->toolSelect
+			);
+		}
+		else if (this->toolSelect == Stage::tileType::enemySpawner)
+		{
+			this->stage->removeEnemySpawner(
+				this->mousePosGrid.x,
+				this->mousePosGrid.y
+			);
+		}
+	}
+}
+
+void GameMapMaker::updateText()
+{
+	if (this->windowUI)
+	{
+		this->selectorText.setPosition(Vector2f(this->mousePosWindow.x + 20.f, this->mousePosWindow.y));
+		this->enemySpawnerText.setPosition(Vector2f(this->mousePosWindow.x + 20.f, this->mousePosWindow.y + 20.f));
+	}
+	else
+	{
+		this->selectorText.setPosition(Vector2f(this->mousePosWorld.x + 20.f, this->mousePosWorld.y));
+		this->enemySpawnerText.setPosition(Vector2f(this->mousePosWorld.x + 20.f, this->mousePosWorld.y + 20.f));
+	}
+
+	if (this->toolSelect == Stage::tileType::backgroundTile)
+		this->selectorText.setString("BACKGROUND");
+	else if(this->toolSelect == Stage::tileType::regularTile)
+		this->selectorText.setString("REGULAR TILE");
+	else if (this->toolSelect == Stage::tileType::enemySpawner)
+		this->selectorText.setString("ENEMY SPAWNER");
+
+	this->enemySpawnerText.setString(
+		"Random pos: " + std::to_string(this->enemyRandomSpawnPos) +
+		"\nType: " + std::to_string(this->enemyType) +
+		"\nLevel Interval: " + std::to_string(this->enemyLevelInterval) +
+		"\nNrOfEnemies: " + std::to_string(this->nrOfEnemies)
+	);
+}
+
+void GameMapMaker::updateButtons()
+{
+	for (size_t i = 0; i < this->buttons.size(); i++)
+	{
+		this->buttons[i].update(this->mousePosWorld);
 	}
 }
 
@@ -414,6 +676,12 @@ void GameMapMaker::update(const float &dt)
 	//Map
 	this->mapUpdate(dt);
 
+	//Text update
+	this->updateText();
+
+	//Button update
+	this->updateButtons();
+
 	//UI update
 	this->updateUI();
 
@@ -422,16 +690,27 @@ void GameMapMaker::update(const float &dt)
 
 }
 
+void GameMapMaker::drawText()
+{
+	this->window->draw(this->selectorText);
+	this->window->draw(this->enemySpawnerText);
+}
+
 void GameMapMaker::drawUIWindow()
 {
 	this->window->draw(this->textureSelector);
 
-	this->window->draw(this->selector);
+	this->window->draw(this->selector);	
 }
 
 void GameMapMaker::drawUIView()
 {
 	this->window->draw(this->selector);
+
+	for (size_t i = 0; i < this->buttons.size(); i++)
+	{
+		this->buttons[i].draw(*this->window);
+	}
 }
 
 void GameMapMaker::drawMap()
@@ -439,7 +718,8 @@ void GameMapMaker::drawMap()
 	this->stage->draw(
 		*this->window,
 		this->mainView,
-		true
+		true,
+		this->font
 	);
 }
 
@@ -455,6 +735,9 @@ void GameMapMaker::draw()
 	this->drawMap();
 
 	//Draw UI
+
+	//Draw text
+	this->drawText();
 
 	//Set view
 	if (this->windowUI)

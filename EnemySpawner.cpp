@@ -1,21 +1,19 @@
 #include "EnemySpawner.h"
 
 EnemySpawner::EnemySpawner(
-	Vector2f pos,
+	Vector2i gridPos,
+	bool randomSpawnPos,
 	int type,
-	int level,
 	int levelInterval,
-	int nrOfEnemies,
-	float spawnTimerMax
+	int nrOfEnemies
 )
 {
-	this->sprite.setPosition(pos);
+	this->used = false;
+	this->gridPosition = gridPos;
+	this->randomSpawnPos = randomSpawnPos;
 	this->type = type;
-	this->level = level;
-	this->levelInterval = level;
+	this->levelInterval = levelInterval;
 	this->nrOfEnemies = nrOfEnemies;
-	this->spawnTimerMax = spawnTimerMax;
-	this->spawnTimer = this->spawnTimerMax;
 }
 
 EnemySpawner::~EnemySpawner()
@@ -30,7 +28,7 @@ void EnemySpawner::updateTimer()
 
 bool EnemySpawner::isInScreen(View &view)
 {
-
+	return true;
 }
 
 void EnemySpawner::spawn()
@@ -38,12 +36,42 @@ void EnemySpawner::spawn()
 
 }
 
+std::string EnemySpawner::getAsString()const
+{
+	return std::to_string(this->gridPosition.x) + " " +
+		std::to_string(this->gridPosition.y) + " " +
+		std::to_string(this->randomSpawnPos) + " " +
+		std::to_string(this->type) + " " +
+		std::to_string(this->levelInterval) + " " +
+		std::to_string(this->nrOfEnemies) + " ";
+}
+
 void EnemySpawner::update(View &view)
 {
 
 }
 
-void EnemySpawner::draw(RenderTarget &target)
+void EnemySpawner::draw(RenderTarget &target, Font &font)
 {
-	target.draw(this->sprite);
+	RectangleShape shape;
+	shape.setFillColor(Color::White);
+	shape.setSize(Vector2f(Wingman::gridSize, Wingman::gridSize));
+	shape.setPosition(this->gridPosition.x * Wingman::gridSize, this->gridPosition.y * Wingman::gridSize);
+	if (this->type >= 0)
+		shape.setTexture(&Enemy::textures[this->type]);
+
+	Text text;
+	text.setFont(font);
+	text.setCharacterSize(12);
+	text.setFillColor(Color::Red);
+	text.setPosition(shape.getPosition());
+	text.setString(
+		"Type: " + std::to_string(this->type) + "\n" +
+		"LevelInterval: " + std::to_string(this->levelInterval) + "\n" +
+		"NrOfE: " + std::to_string(this->nrOfEnemies) + "\n"
+	);
+
+	
+	target.draw(shape);
+	target.draw(text);
 }

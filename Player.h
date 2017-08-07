@@ -114,7 +114,8 @@ public:
 	inline void move(float x, float y) { this->sprite.move(x, y); this->mainGunSprite.move(x, y); }
 	inline const Vector2f& getNormDir()const { return this->normDir; }
 	inline FloatRect getBounds()const { return this->sprite.getGlobalBounds(); }
-	inline void setPos(float x, float y) {this->sprite.setPosition(Vector2f(x, y)); this->mainGunSprite.setPosition(Vector2f(x, y)); }
+	void setPos(float x, float y);
+	
 	inline const bool intersects(FloatRect rect)const { return this->sprite.getGlobalBounds().intersects(rect); }
 
 	inline const String getHpAsString()const { return std::to_string(this->hp) + "/" + std::to_string(this->hpMax); }
@@ -169,11 +170,11 @@ public:
 	bool updateLeveling();
 	void updateStats();
 	void changeAccessories(const float &dt);
-	void updateAccessories(const float &dt);
+	void updateAccessories(const float &dt, const float scrollSpeed);
 	void updatePowerups();
 	void combat(const float &dt);
-	void movement(View &view, const float &dt);
-	void update(View &view, const float &dt);
+	void movement(View &view, const float &dtconst, float scrollSpeed);
+	void update(View &view, const float &dt, const float scrollSpeed);
 	void draw(RenderTarget &target);
 
 	//Regular functions

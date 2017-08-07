@@ -1,9 +1,102 @@
-﻿  main.cpp
+﻿  EnemySpawner.cpp
+EnemySpawner.cpp(58): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+EnemySpawner.cpp(59): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Game.cpp
+Game.cpp(85): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+Game.cpp(137): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(140): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(143): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(154): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+Game.cpp(128): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+Game.cpp(133): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+Game.cpp(271): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+Game.cpp(362): warning C4018: '>=': signed/unsigned mismatch
+Game.cpp(406): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(415): warning C4244: 'argument': conversion from 'float' to 'sf::Uint8', possible loss of data
+Game.cpp(523): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(540): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(550): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Game.cpp(573): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(583): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Game.cpp(900): warning C4018: '<': signed/unsigned mismatch
+Game.cpp(910): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'Bullet &dArr<Bullet>::operator [](int)'
+  Game.cpp(863): note: see reference to function template instantiation 'Bullet &dArr<Bullet>::operator [](int)' being compiled
+  h:\wingman\wingman\Player.h(35): note: see reference to class template instantiation 'dArr<Bullet>' being compiled
+h:\wingman\wingman\dArr.h(135): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(134): note: while compiling class template member function 'void dArr<Bullet>::remove(int)'
+  Game.cpp(947): note: see reference to function template instantiation 'void dArr<Bullet>::remove(int)' being compiled
+  GameMapMaker.cpp
+GameMapMaker.cpp(298): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+GameMapMaker.cpp(315): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+GameMapMaker.cpp(322): warning C4996: 'sf::Text::setColor': was declared deprecated
+  H:\Wingman\Wingman\include\SFML/Graphics/Text.hpp(177): note: see declaration of 'sf::Text::setColor'
+GameMapMaker.cpp(340): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+GameMapMaker.cpp(387): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+GameMapMaker.cpp(388): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+GameMapMaker.cpp(563): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+GameMapMaker.cpp(596): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
+GameMapMaker.cpp(612): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+GameMapMaker.cpp(651): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+GameMapMaker.cpp(658): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'WButton &dArr<WButton>::operator [](int)'
+  GameMapMaker.cpp(640): note: see reference to function template instantiation 'WButton &dArr<WButton>::operator [](int)' being compiled
+  h:\wingman\wingman\GameMapMaker.h(46): note: see reference to class template instantiation 'dArr<WButton>' being compiled
+  MainMenu.cpp
+  Map.cpp
+  Particle.cpp
+Particle.cpp(34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Particle.cpp(38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+Particle.cpp(39): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  Particle.cpp(28): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  Particle.cpp(4): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
+  Powerup.cpp
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  Powerup.cpp(28): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  Powerup.cpp(4): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
+  Stage.cpp
+Stage.cpp(61): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(158): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
+Stage.cpp(271): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(306): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(330): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(418): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(419): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+Stage.cpp(477): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+Stage.cpp(480): warning C4018: '>=': signed/unsigned mismatch
+Stage.cpp(483): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+Stage.cpp(486): warning C4018: '>=': signed/unsigned mismatch
+Stage.cpp(489): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+Stage.cpp(492): warning C4018: '>=': signed/unsigned mismatch
+Stage.cpp(495): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+Stage.cpp(498): warning C4018: '>=': signed/unsigned mismatch
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  Stage.cpp(63): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  Stage.cpp(8): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
+h:\wingman\wingman\dArr.h(135): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(134): note: while compiling class template member function 'void dArr<sf::RectangleShape>::remove(int)'
+  Stage.cpp(409): note: see reference to function template instantiation 'void dArr<sf::RectangleShape>::remove(int)' being compiled
+  Tile.cpp
+  WButton.cpp
+h:\wingman\wingman\dArr.h(67): warning C4018: '>=': signed/unsigned mismatch
+  h:\wingman\wingman\dArr.h(66): note: while compiling class template member function 'sf::Texture &dArr<sf::Texture>::operator [](int)'
+  WButton.cpp(40): note: see reference to function template instantiation 'sf::Texture &dArr<sf::Texture>::operator [](int)' being compiled
+  WButton.cpp(4): note: see reference to class template instantiation 'dArr<sf::Texture>' being compiled
+  main.cpp
 main.cpp(8): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Generating code
-  1 of 671 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  129 of 739 functions (17.5%) were compiled, the rest were copied from previous compilation.
+    27 functions were new in current compilation
+    123 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Wingman.vcxproj -> H:\Wingman\Release\Wingman.exe
   Wingman.vcxproj -> H:\Wingman\Release\Wingman.pdb (Full PDB)

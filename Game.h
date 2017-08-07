@@ -1,9 +1,10 @@
 #pragma once
 
 #include"Player.h"
-#include"Enemy.h"
 #include"Boss.h"
 #include"Map.h"
+
+enum Mode {Survival = 0, Regular};
 
 class Game
 {
@@ -12,11 +13,14 @@ private:
 	//Game
 	RenderWindow *window;
 	View mainView;
+	RenderTexture mainRenderTexture;
+	Sprite mainRenderSprite;
 	float dtMultiplier;
 	bool paused;
 	float keyTimeMax;
 	float keyTime;
 	bool fullscreen;
+	int mode;
 	
 	//Score
 	unsigned score;
@@ -54,6 +58,8 @@ private:
 	dArr<TextTag> textTags;
 
 	//MAP
+	int fromCol, toCol;
+	int fromRow, toRow;
 	Stage *stage;
 
 	//Players
@@ -105,13 +111,14 @@ public:
 	void toggleFullscreen();
 	void pauseGame();
 
+	void initRT();
 	void initView();
 	void initTextures();
 	void initUI();
 	void initMap();
 	void initialize();
 
-	void updateView();
+	void updateView(const float &dt);
 	void restartUpdate();
 	void setEndingScoreboard();
 	void updateTimers(const float &dt);
@@ -124,6 +131,7 @@ public:
 	void playerUpdate(const float &dt);
 	void playerBulletUpdate(const float &dt, const int i);
 	void enemyUpdate(const float &dt);
+	void enemySpawnUpdate(const float &dt);
 	void enemyBulletUpdate(const float &dt);
 	void textTagsUpdate(const float &dt);
 	void pickupsUpdate(const float &dt);
