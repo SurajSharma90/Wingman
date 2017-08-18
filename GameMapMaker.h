@@ -21,9 +21,13 @@ private:
 	int backgroundWidth;
 	int backgroundHeight;
 
+	//Variables for tiles
+	bool tileCollider;
+
 	//Variables for enemySpawner
 	Vector2i enemyPosGrid;
 	bool enemyRandomSpawnPos;
+	int enemyMaxVelocity;
 	int enemyType;
 	int enemyLevelInterval;
 	int nrOfEnemies;

@@ -9,6 +9,8 @@ enum Mode {Survival = 0, Regular};
 class Game
 {
 private:
+	//Game Menu
+	MainMenu mainMenu;
 
 	//Game
 	RenderWindow *window;
@@ -114,6 +116,7 @@ public:
 	void initRT();
 	void initView();
 	void initTextures();
+	void initMenues();
 	void initUI();
 	void initMap();
 	void initialize();
@@ -130,6 +133,7 @@ public:
 	void updateWhilePaused(const float &dt);
 	void playerUpdate(const float &dt);
 	void playerBulletUpdate(const float &dt, const int i);
+	void playerCollisionUpdate(const float &dt, const int i);
 	void enemyUpdate(const float &dt);
 	void enemySpawnUpdate(const float &dt);
 	void enemyBulletUpdate(const float &dt);

@@ -257,7 +257,7 @@ Player::Player(
 	//Upgrades
 	this->mainGunLevel = 0;
 	this->piercingShot = false;
-	this->shield = false;
+	this->shield = true;
 	this->dualMissiles01 = false;
 	this->dualMissiles02 = false;
 

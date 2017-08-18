@@ -38,6 +38,7 @@ public:
 		bool randomPos,
 		Vector2f position, 
 		Vector2f direction, 
+		float maxVelocity,
 		int type, 
 		int scalar,
 		int playerFollowNr);

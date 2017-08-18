@@ -31,7 +31,7 @@ Particle::Particle(
 		this->sprite.getGlobalBounds().height / 2
 		);
 	this->sprite.setPosition(pos);
-	this->sprite.setScale(Vector2f(rand() % 2 + 1, rand() % 2 + 1));
+	this->sprite.setScale(Vector2f(1, 1));
 	this->sprite.setColor(color);
 	this->color = color;
 

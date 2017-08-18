@@ -11,8 +11,12 @@ GameMapMaker::GameMapMaker(RenderWindow *window)
 	this->backgroundWidth = Wingman::backgroundSize;
 	this->backgroundHeight = Wingman::backgroundSize;
 
+	//Variables for tiles
+	this->tileCollider = false;
+
 	//Variables for enemySpawner
 	this->enemyRandomSpawnPos = false;
+	this->enemyMaxVelocity = 0;
 	enemyType = 0;
 	enemyLevelInterval = 0;
 	nrOfEnemies = 0;
@@ -246,10 +250,23 @@ void GameMapMaker::setEnemySpawner()
 		std::cin >> this->enemyRandomSpawnPos;
 	}
 
+	std::cout << "Max Velocity:";
+	std::cin >> this->enemyMaxVelocity;
+
+	while (std::cin.fail() || this->enemyMaxVelocity < -1)
+	{
+		std::cout << "Faulty input!" << "\n";
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
+
+		std::cout << "Max Velocity:";
+		std::cin >> this->enemyMaxVelocity;
+	}
+
 	std::cout << "Type:"; 
 	std::cin >> this->enemyType;
 
-	while (std::cin.fail())
+	while (std::cin.fail() || this->enemyType > Enemy::nrOfTypes)
 	{
 		std::cout << "Faulty input!" << "\n";
 		std::cin.clear();
@@ -262,7 +279,7 @@ void GameMapMaker::setEnemySpawner()
 	std::cout << "Level Interval:";
 	std::cin >> this->enemyLevelInterval;
 
-	while (std::cin.fail())
+	while (std::cin.fail() || this->enemyLevelInterval <= 0)
 	{
 		std::cout << "Faulty input!" << "\n";
 		std::cin.clear();
@@ -275,7 +292,7 @@ void GameMapMaker::setEnemySpawner()
 	std::cout << "Number of enemies:";
 	std::cin >> this->nrOfEnemies;
 
-	while (std::cin.fail())
+	while (std::cin.fail() || this->nrOfEnemies < -1 || this->nrOfEnemies > 50)
 	{
 		std::cout << "Faulty input!" << "\n";
 		std::cin.clear();
@@ -325,10 +342,10 @@ void GameMapMaker::initText()
 
 void GameMapMaker::initButtons()
 {
-	WButton temp(this->font, "EnemySpawnerSelect", 12, Vector2f(600, 600), 0);
+	//WButton temp(this->font, "EnemySpawnerSelect", 12, Vector2f(600, 600), 0);
 
-	//Add enemyspawnerselect button
-	this->buttons.add(temp);
+	////Add enemyspawnerselect button
+	//this->buttons.add(temp);
 }
 
 void GameMapMaker::initUI()
@@ -339,7 +356,7 @@ void GameMapMaker::initUI()
 	this->textureY = 0;
 	this->selector.setSize(Vector2f(Wingman::gridSize, Wingman::gridSize));
 	this->selector.setFillColor(Color::Transparent);
-	this->selector.setOutlineColor(Color::Red);
+	this->selector.setOutlineColor(Color::Green);
 	this->selector.setOutlineThickness(2.f);
 
 	this->textureSelector.setTexture(Tile::textures);
@@ -479,6 +496,38 @@ void GameMapMaker::updateControls()
 		this->keyTime = 0.f;
 	}
 
+	//Select regulat tile drawing
+	if (Keyboard::isKeyPressed(Keyboard::T)
+		&& Keyboard::isKeyPressed(Keyboard::LControl)
+		&& this->keyTime >= this->keyTimeMax)
+	{
+		if (this->toolSelect == Stage::tileType::backgroundTile)
+			this->toolSelect = Stage::tileType::regularTile;
+		else
+			this->toolSelect = Stage::tileType::backgroundTile;
+
+		this->keyTime = 0.f;
+	}
+
+	//Toggle tile collider
+	if (Keyboard::isKeyPressed(Keyboard::T)
+		&& Keyboard::isKeyPressed(Keyboard::LShift)
+		&& this->keyTime >= this->keyTimeMax)
+	{
+		if (this->tileCollider)
+		{
+			this->tileCollider = false;
+			this->selector.setOutlineColor(Color::Green);
+		}
+		else
+		{
+			this->tileCollider = true;
+			this->selector.setOutlineColor(Color::Red);
+		}
+
+		this->keyTime = 0.f;
+	}
+
 	//Select background tile drawing
 	if (Keyboard::isKeyPressed(Keyboard::B)
 		&& Keyboard::isKeyPressed(Keyboard::LControl)
@@ -561,7 +610,7 @@ void GameMapMaker::updateAddRemoveTiles()
 					Vector2f(
 						this->mousePosGrid.x * Wingman::gridSize,
 						this->mousePosGrid.y * Wingman::gridSize),
-					false,
+					this->tileCollider,
 					false),
 				this->mousePosGrid.x,
 				this->mousePosGrid.y,
@@ -575,6 +624,7 @@ void GameMapMaker::updateAddRemoveTiles()
 				EnemySpawner(
 					this->enemyPosGrid,
 					this->enemyRandomSpawnPos,
+					this->enemyMaxVelocity,
 					this->enemyType,
 					this->enemyLevelInterval,
 					this->nrOfEnemies
@@ -619,9 +669,9 @@ void GameMapMaker::updateText()
 	}
 
 	if (this->toolSelect == Stage::tileType::backgroundTile)
-		this->selectorText.setString("BACKGROUND");
+		this->selectorText.setString(std::string("BACKGROUND TILE " + std::to_string(this->tileCollider)));
 	else if(this->toolSelect == Stage::tileType::regularTile)
-		this->selectorText.setString("REGULAR TILE");
+		this->selectorText.setString(std::string("REGULAR TILE " + std::to_string(this->tileCollider)));
 	else if (this->toolSelect == Stage::tileType::enemySpawner)
 		this->selectorText.setString("ENEMY SPAWNER");
 

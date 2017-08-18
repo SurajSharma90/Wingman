@@ -5,6 +5,7 @@
 class WButton
 {
 private:
+	int id;
 	Sprite sprite;
 	Text text;
 
@@ -18,6 +19,7 @@ private:
 	
 public:
 	WButton(
+		int id,
 		Font &font,
 		std::string text,
 		const unsigned int charSize,
@@ -25,6 +27,9 @@ public:
 		int textureIndex
 	);
 	virtual ~WButton();
+
+	inline std::string getName() { return this->text.getString(); }
+	inline int getId() { return this->id; }
 
 	bool isPressed();
 	bool isHover();

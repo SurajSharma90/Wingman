@@ -28,7 +28,8 @@ Enemy::Enemy(
 	View& view,
 	bool randomPos,
 	Vector2f position, 
-	Vector2f moveDirection, 
+	Vector2f moveDirection,
+	float maxVelocity,
 	int type,
 	int scalar,
 	int playerFollowNr)
@@ -68,7 +69,10 @@ Enemy::Enemy(
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 3 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = rand()% 20 + 5;
+		if (maxVelocity < 0)
+			this->maxVelocity = rand() % 20 + 5;
+		else
+			this->maxVelocity = maxVelocity;
 			break;
 
 	case FOLLOW:
@@ -77,7 +81,10 @@ Enemy::Enemy(
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = 6 + 3;
+		if (maxVelocity < 0)
+			this->maxVelocity = rand() % 6 + 3;
+		else
+			this->maxVelocity = maxVelocity;
 			break;
 
 	case MOVELEFTSHOOT:
@@ -87,7 +94,12 @@ Enemy::Enemy(
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 3 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = rand() % 10 + 5;
+		
+		if (maxVelocity < 0)
+			this->maxVelocity = rand() % 10 + 5;
+		else
+			this->maxVelocity = maxVelocity;
+		
 		this->nrOfBullets = 3;
 		this->shootTimerMax = 8.f;
 		this->shootTimer = 0.f;
@@ -99,7 +111,12 @@ Enemy::Enemy(
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = rand() % 10 + 3;
+		
+		if (maxVelocity < 0)
+			this->maxVelocity = rand() % 10 + 3;
+		else
+			this->maxVelocity = maxVelocity;
+		
 		this->shootTimerMax = 50.f;
 		this->shootTimer = 0.f;
 		break;
@@ -109,7 +126,10 @@ Enemy::Enemy(
 		this->hp = this->hpMax;
 		this->damageMax = (rand() % 2 + 1) * scalar;
 		this->damageMin = (rand() % 1 + 1) * scalar;
-		this->maxVelocity = 15 + 5;
+		if (maxVelocity < 0)
+			this->maxVelocity = rand() % 6 + 3;
+		else
+			this->maxVelocity = maxVelocity;
 			break;
 	}
 

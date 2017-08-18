@@ -258,6 +258,7 @@ bool Stage::loadStage(std::string fileName, View &view)
 
 	//EnemySpawner
 	bool randomSpawnPos = 0;
+	int maxVelocity = 0;
 	int type = 0;
 	int levelInterval = 0;
 	int nrOfEnemies = 0;
@@ -358,6 +359,7 @@ bool Stage::loadStage(std::string fileName, View &view)
 			>> gridPosX 
 			>> gridPosY
 			>> randomSpawnPos
+			>> maxVelocity
 			>> type 
 			>> levelInterval
 			>> nrOfEnemies 
@@ -367,6 +369,7 @@ bool Stage::loadStage(std::string fileName, View &view)
 				EnemySpawner(
 					Vector2i(gridPosX, gridPosY),
 					randomSpawnPos,
+					maxVelocity,
 					type,
 					levelInterval,
 					nrOfEnemies
@@ -535,11 +538,27 @@ void Stage::draw(RenderTarget &target, View &view, bool editor, Font &font)
 			if (!this->backgroundTiles[i].isNull(k))
 				this->backgroundTiles[i][k].draw(target);
 
-			if(!this->tiles[i].isNull(k))
+			if (!this->tiles[i].isNull(k))
+			{
 				this->tiles[i][k].draw(target);
+
+				if (editor && this->tiles[i][k].getIsCollider())
+				{
+					RectangleShape shape;
+					shape.setSize(Vector2f(Wingman::gridSize, Wingman::gridSize));
+					shape.setPosition(this->tiles[i][k].getPos());
+					shape.setFillColor(Color::Transparent);
+					shape.setOutlineThickness(2.f);
+					shape.setOutlineColor(Color::Red);
+
+					target.draw(shape);
+					
+				}
+			}
 
 			if (!this->enemySpawners[i].isNull(k) && editor)
 				this->enemySpawners[i][k].draw(target, font);
+
 		}
 	}
 }

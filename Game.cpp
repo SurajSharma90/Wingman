@@ -119,6 +119,14 @@ void Game::initTextures()
 	Particle::initTextures();
 }
 
+void Game::initMenues()
+{
+	//Init main menu
+	this->mainMenu.initialize(this->window->getSize());
+
+	//Init in-game menu
+}
+
 void Game::initUI()
 {
 	Text tempText;
@@ -187,14 +195,17 @@ void Game::initMap()
 
 void Game::initialize()
 {
-	//Init view
-	this->initView();
-
 	//Init fonts
 	this->font.loadFromFile("Fonts/Dosis-Light.ttf");
 
 	//INit textures
 	this->initTextures();
+
+	//Init menues
+	this->initMenues();
+
+	//Init view
+	this->initView();
 
 	//Init map
 	this->initMap();
@@ -202,18 +213,18 @@ void Game::initialize()
 	//Init players
 	this->players.add(Player());
 
-	/*this->players.add(Player(
-		Keyboard::Numpad8,
-		Keyboard::Numpad5,
-		Keyboard::Numpad4,
-		Keyboard::Numpad6,
-		Keyboard::RControl,
-		Keyboard::RShift,
-		Keyboard::Numpad7,
-		Keyboard::Numpad1,
-		Keyboard::Numpad2,
-		Keyboard::Numpad3,
-		Keyboard::Numpad0));*/
+	//this->players.add(Player(
+	//	Keyboard::Numpad8,
+	//	Keyboard::Numpad5,
+	//	Keyboard::Numpad4,
+	//	Keyboard::Numpad6,
+	//	Keyboard::RControl,
+	//	Keyboard::RShift,
+	//	Keyboard::Numpad7,
+	//	Keyboard::Numpad1,
+	//	Keyboard::Numpad2,
+	//	Keyboard::Numpad3,
+	//	Keyboard::Numpad0));
 
 	//this->players.add(Player(
 	//	Keyboard::I,
@@ -483,6 +494,9 @@ void Game::playerUpdate(const float &dt)
 				dt, 
 				stage->getScrollSpeed());
 
+			//Collision update
+			this->playerCollisionUpdate(dt, i);
+
 			//Bullets update
 			this->playerBulletUpdate(dt, i);
 
@@ -537,14 +551,14 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 					this->enemies[j].takeDamage(damage);
 
 					//Add particles on damage
-					int nrOfPart = rand() % 5 + 2;
+					int nrOfPart = rand() % 5 + 3;
 					for (size_t l = 0; l < nrOfPart; l++)
 					{
 						this->particles.add(Particle(
 							this->players[i].getBullet(k).getPosition(),
 							0,
 							this->players[i].getBullet(k).getVel(),
-							rand() % 30 + 10,
+							rand() % 20 + 10,
 							rand() % 20,
 							30.f,
 							Color(255, 255, 255, 255)
@@ -570,7 +584,7 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 				if (this->enemies[j].getHP() <= 0)
 				{
 					//Add particles on death
-					int nrOfPart = rand() % 10 + 5;
+					int nrOfPart = rand() % 30 + 10;
 					for (size_t l = 0; l < nrOfPart; l++)
 					{
 						this->particles.add(Particle(
@@ -777,6 +791,53 @@ void Game::playerBulletUpdate(const float &dt, const int i)
 	}
 }
 
+void Game::playerCollisionUpdate(const float &dt, const int i)
+{
+	//Index calculations
+	if (players[i].isAlive())
+	{
+		this->fromCol = (this->players[i].getPosition().x - Wingman::gridSize*2) / Wingman::gridSize;
+		if (fromCol <= 0)
+			fromCol = 0;
+		if (fromCol >= this->stage->getSizeX())
+			fromCol = this->stage->getSizeX();
+
+		this->toCol = (this->players[i].getPosition().x + Wingman::gridSize * 2) / Wingman::gridSize + 1;
+		if (toCol <= 0)
+			toCol = 0;
+		if (toCol >= this->stage->getSizeX())
+			toCol = this->stage->getSizeX();
+
+		this->fromRow = (this->players[i].getPosition().y - Wingman::gridSize * 2) / Wingman::gridSize;
+		if (fromRow <= 0)
+			fromRow = 0;
+		if (fromRow >= this->stage->getSizeY())
+			fromRow = this->stage->getSizeY();
+
+		this->toRow = (this->players[i].getPosition().y + Wingman::gridSize * 2) / Wingman::gridSize + 1;
+		if (toRow <= 0)
+			toRow = 0;
+		if (toRow >= this->stage->getSizeY())
+			toRow = this->stage->getSizeY();
+
+		for (size_t j = fromCol; j < toCol; j++)
+		{
+			for (size_t k = fromRow; k < toRow; k++)
+			{
+				//Collision
+				if (!this->stage->getTiles()[j].isNull(k)
+					&& this->stage->getTiles()[j][k].getIsCollider()
+					&& this->players[i].getBounds().intersects(this->stage->getTiles()[j][k].getBounds())
+					)
+				{
+					this->players[i].move(-this->players[i].getNormDir().x * 100 * dt * this->dtMultiplier, -this->players[i].getNormDir().y * 100 * dt * this->dtMultiplier);
+					this->players[i].resetVelocity();
+				}
+			}
+		}
+	}
+}
+
 void Game::enemyUpdate(const float &dt)
 {
 	//Spawn enemies
@@ -854,6 +915,7 @@ void Game::enemySpawnUpdate(const float &dt)
 				true,
 				Vector2f(0.f, 0.f),
 				Vector2f(-1.f, 0.f),
+				-1,
 				rand() % Enemy::nrOfTypes,
 				this->players[(rand() % playersAlive)].getLevel(),
 				rand() % this->playersAlive)
@@ -924,6 +986,7 @@ void Game::enemySpawnUpdate(const float &dt)
 							this->stage->getEnemySpawners()[i][j].getRandomSpawnPos(),
 							this->stage->getEnemySpawners()[i][j].getPos(),
 							Vector2f(-1.f, 0.f),
+							this->stage->getEnemySpawners()[i][j].getMaxVelocity(),
 							eType,
 							this->players[(rand() % playersAlive)].getLevel(),
 							rand() % this->playersAlive)
@@ -981,7 +1044,7 @@ void Game::enemyBulletUpdate(const float &dt)
 				else
 				{
 					//Add particles on shielding
-					int nrOfPart = rand() % 5 + 2;
+					int nrOfPart = rand() % 5 + 3;
 					for (size_t l = 0; l < nrOfPart; l++)
 					{
 						this->particles.add(Particle(
@@ -1414,6 +1477,9 @@ void Game::update(const float &dt)
 
 		//Particles
 		this->particlesUpdate(dt);
+
+		//Restart
+		this->restartUpdate();
 	}
 	else if(this->playersAlive <= 0 && this->scoreTime == 0)
 	{
@@ -1579,3 +1645,50 @@ void Game::draw()
 	//FINISH DRAW
 	this->window->display();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+PROPERTY Of Suraj Sharma.
+No third party has the rights to sell or distribute this software and all its files and source-code.
+No third party has the right to copy this software and all it's components for uses other than personal learning and testing.
+*/

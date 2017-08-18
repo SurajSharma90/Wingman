@@ -8,14 +8,16 @@ private:
 	bool used;
 	Vector2i gridPosition;
 	bool randomSpawnPos;
-	int type; //-1 = random
+	int maxVelocity; // -1 = random
+	int type; // -1 = random
 	int levelInterval;
-	int nrOfEnemies; //-1 = random ( 1 - 10 )
+	int nrOfEnemies; // -1 = random ( 1 - 10 )
 	
 public:
 	EnemySpawner(
 		Vector2i gridPos,
 		bool randomSpawnPos,
+		int maxVelocity,
 		int type,
 		int levelInterval,
 		int nrOfEnemies
@@ -27,6 +29,7 @@ public:
 	inline Vector2i getGridPos()const { return this->gridPosition; }
 	inline Vector2f getPos()const { return Vector2f(gridPosition.x * Wingman::gridSize, gridPosition.y * Wingman::gridSize); }
 	inline int getRandomSpawnPos()const { return this->randomSpawnPos; }
+	inline int getMaxVelocity()const { return this->maxVelocity; }
 	inline int getType()const { return this->type; }
 	inline int getLevelInterval()const { return this->levelInterval; }
 	inline int getNrOfEnemies()const { return this->nrOfEnemies; }

@@ -15,6 +15,7 @@ void WButton::initTextures()
 }
 
 WButton::WButton(
+	int id,
 	Font &font, 
 	std::string text,
 	const unsigned int charSize,
@@ -22,6 +23,8 @@ WButton::WButton(
 	int textureIndex
 )
 {
+	this->id = id;
+
 	this->text.setFont(font);
 	this->text.setCharacterSize(charSize);
 	this->text.setString(text);
